@@ -2,419 +2,164 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>Міні база посилок (IndexedDB)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>База посилок (JSON textarea)</title>
 <style>
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 480px;
-    margin: 0 auto;
-    padding: 10px;
-    background: #f7f9fc;
-  }
-  h1 {
-    text-align: center;
-    margin-bottom: 15px;
-  }
-  form {
-    background: white;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-  }
-  label {
-    display: block;
-    margin-top: 10px;
-    font-weight: bold;
-  }
-  input, textarea {
-    width: 100%;
-    padding: 8px;
-    margin-top: 4px;
-    box-sizing: border-box;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-  }
-  input[type="number"]::-webkit-inner-spin-button,
-  input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-  button {
-    margin-top: 15px;
-    width: 100%;
-    padding: 12px;
-    font-size: 1.1rem;
-    background: #007bff;
-    border: none;
-    border-radius: 7px;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  button:hover {
-    background: #0056b3;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    box-shadow: 0 0 8px rgba(0,0,0,0.1);
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  th, td {
-    padding: 8px 6px;
-    border-bottom: 1px solid #ddd;
-    font-size: 0.9rem;
-    text-align: left;
-  }
-  th {
-    background: #f0f4f8;
-  }
-  td.actions {
-    display: flex;
-    gap: 8px;
-  }
-  td.actions button {
-    flex: 1;
-    padding: 5px 0;
-    font-size: 0.85rem;
-    border-radius: 5px;
-  }
-  td.actions button.edit {
-    background: #17a2b8;
-    color: white;
-    border: none;
-  }
-  td.actions button.delete {
-    background: #dc3545;
-    color: white;
-    border: none;
-  }
-  @media (max-width: 480px) {
-    table, thead, tbody, tr, th, td {
-      display: block;
-    }
-    thead tr {
-      display: none;
-    }
-    tr {
-      margin-bottom: 15px;
-      border-radius: 8px;
-      background: white;
-      box-shadow: 0 0 6px rgba(0,0,0,0.1);
-      padding: 10px;
-    }
-    td {
-      border: none;
-      padding-left: 50%;
-      position: relative;
-      text-align: right;
-    }
-    td::before {
-      content: attr(data-label);
-      position: absolute;
-      left: 10px;
-      width: 45%;
-      padding-left: 10px;
-      font-weight: bold;
-      text-align: left;
-      white-space: nowrap;
-    }
-    td.actions {
-      display: flex;
-      justify-content: space-between;
-      padding-left: 10px;
-    }
-  }
+  body { font-family: Arial, sans-serif; max-width: 480px; margin: 20px auto; padding: 0 10px; }
+  h1 { text-align: center; margin-bottom: 15px; }
+  form { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+  label { display: block; margin-top: 10px; font-weight: bold; }
+  input, textarea, button { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; font-size: 1rem; }
+  button { background: #007bff; color: white; border: none; cursor: pointer; margin-top: 15px; border-radius: 7px; font-size: 1.1rem; }
+  button:hover { background: #0056b3; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { padding: 8px 5px; border: 1px solid #ccc; text-align: left; font-size: 0.9rem; }
+  th { background: #eee; }
+  #jsonData { height: 120px; font-family: monospace; white-space: pre-wrap; }
 </style>
 </head>
 <body>
 
-<h1>Міні база посилок</h1>
+<h1>База посилок (JSON textarea)</h1>
 
 <form id="parcelForm" autocomplete="off">
-  <input type="hidden" id="editIndex" value="">
-
-  <label for="parcelNumber">№ посилки *</label>
-  <input id="parcelNumber" type="text" required placeholder="Наприклад: ABC123456789" />
+  <label for="number">№ посилки *</label>
+  <input id="number" type="text" required placeholder="Наприклад: ABC123456789" />
 
   <label for="weight">Вага (кг) *</label>
-  <input id="weight" type="number" step="0.01" min="0" required placeholder="Вага" />
+  <input id="weight" type="number" step="0.01" min="0" required />
 
   <label for="placesCount">Кількість місць *</label>
-  <input id="placesCount" type="number" min="1" step="1" required placeholder="Кількість місць" />
+  <input id="placesCount" type="number" min="1" step="1" required />
 
-  <div id="volumeWeightsContainer"></div>
+  <label for="volumeWeight">Обʼємна вага (кг) *</label>
+  <input id="volumeWeight" type="number" step="0.01" min="0" required />
 
   <label for="city">Місто *</label>
-  <input id="city" type="text" required placeholder="Місто" />
+  <input id="city" type="text" required />
 
   <label for="npBranch">Відділення Нової Пошти *</label>
-  <input id="npBranch" type="text" required placeholder="Відділення" />
+  <input id="npBranch" type="text" required />
 
-  <label for="receiverPhone">Номер телефону *</label>
-  <input id="receiverPhone" type="tel" required placeholder="+380XXXXXXXXX" pattern="^\+?\d{7,15}$" title="Введіть коректний номер телефону" />
+  <label for="phone">Номер телефону *</label>
+  <input id="phone" type="tel" required placeholder="+380XXXXXXXXX" pattern="^\+?\d{7,15}$" />
 
-  <label for="priceEuro">Вартість (€) *</label>
-  <input id="priceEuro" type="number" step="0.01" min="0" required placeholder="Ціна в євро" />
+  <label for="price">Вартість (€) *</label>
+  <input id="price" type="number" step="0.01" min="0" required />
 
   <label for="description">Опис</label>
-  <textarea id="description" rows="2" placeholder="Додаткові деталі (не обов'язково)"></textarea>
+  <textarea id="description" rows="2" placeholder="Додаткові деталі"></textarea>
 
-  <button type="submit">Додати / Оновити посилку</button>
+  <button type="submit">Додати посилку</button>
 </form>
 
-<table id="parcelTable" aria-label="Список посилок">
+<h3>Список посилок</h3>
+<table>
   <thead>
     <tr>
       <th>№ посилки</th>
-      <th>Вага (кг)</th>
-      <th>Кількість місць</th>
-      <th>Обʼємна вага (кг)</th>
+      <th>Вага</th>
+      <th>Місць</th>
+      <th>Обʼємна вага</th>
       <th>Місто</th>
       <th>Відділення НП</th>
       <th>Телефон</th>
       <th>Вартість (€)</th>
       <th>Опис</th>
-      <th>Дії</th>
     </tr>
   </thead>
   <tbody id="parcelList"></tbody>
 </table>
 
+<h3>Експорт / Імпорт JSON</h3>
+<textarea id="jsonData" placeholder="Тут буде JSON. Скопіюйте для збереження або вставте для завантаження"></textarea>
+<button id="loadJsonBtn">Завантажити JSON</button>
+
 <script>
-  (() => {
-    // IndexedDB setup
-    const DB_NAME = 'ParcelDB';
-    const DB_VERSION = 1;
-    const STORE_NAME = 'parcels';
+  const form = document.getElementById('parcelForm');
+  const parcelList = document.getElementById('parcelList');
+  const jsonData = document.getElementById('jsonData');
+  const loadJsonBtn = document.getElementById('loadJsonBtn');
 
-    let db;
+  let parcels = [];
 
-    // Відкриваємо IndexedDB
-    function openDb() {
-      return new Promise((resolve, reject) => {
-        const request = indexedDB.open(DB_NAME, DB_VERSION);
-        request.onerror = () => reject('Помилка відкриття бази даних');
-        request.onsuccess = () => {
-          db = request.result;
-          resolve(db);
-        };
-        request.onupgradeneeded = e => {
-          db = e.target.result;
-          if (!db.objectStoreNames.contains(STORE_NAME)) {
-            const store = db.createObjectStore(STORE_NAME, { keyPath: 'id', autoIncrement: true });
-            store.createIndex('number', 'number', { unique: true });
-          }
-        };
-      });
+  function renderParcels() {
+    parcelList.innerHTML = '';
+    if (parcels.length === 0) {
+      parcelList.innerHTML = '<tr><td colspan="9" style="text-align:center;">Посилок немає</td></tr>';
+      jsonData.value = '';
+      return;
     }
-
-    // Додати або оновити посилку
-    function saveParcel(parcel) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
-
-        // Перевірка унікальності номера при додаванні
-        if (parcel.id === undefined) {
-          // Додати нову
-          // Перевірка чи є вже такий number
-          const index = store.index('number');
-          const checkRequest = index.get(parcel.number);
-          checkRequest.onsuccess = () => {
-            if (checkRequest.result) {
-              reject('Посилка з таким номером вже існує!');
-            } else {
-              const addRequest = store.add(parcel);
-              addRequest.onsuccess = () => resolve();
-              addRequest.onerror = () => reject('Помилка додавання посилки');
-            }
-          };
-          checkRequest.onerror = () => reject('Помилка при перевірці унікальності');
-        } else {
-          // Оновлення
-          const putRequest = store.put(parcel);
-          putRequest.onsuccess = () => resolve();
-          putRequest.onerror = () => reject('Помилка оновлення посилки');
-        }
-      });
-    }
-
-    // Отримати всі посилки
-    function getAllParcels() {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readonly');
-        const store = tx.objectStore(STORE_NAME);
-        const request = store.getAll();
-        request.onsuccess = () => resolve(request.result);
-        request.onerror = () => reject('Помилка отримання посилок');
-      });
-    }
-
-    // Видалити посилку по id
-    function deleteParcel(id) {
-      return new Promise((resolve, reject) => {
-        const tx = db.transaction(STORE_NAME, 'readwrite');
-        const store = tx.objectStore(STORE_NAME);
-        const request = store.delete(id);
-        request.onsuccess = () => resolve();
-        request.onerror = () => reject('Помилка видалення посилки');
-      });
-    }
-
-    // Валідація телефону
-    function validatePhone(phone) {
-      const phoneRegex = /^\+?\d{7,15}$/;
-      return phoneRegex.test(phone);
-    }
-
-    // Створення інпутів обʼємної ваги по кількості місць
-    const placesCountInput = document.getElementById('placesCount');
-    const volumeWeightsContainer = document.getElementById('volumeWeightsContainer');
-
-    function createVolumeWeightInputs(count, values = []) {
-      volumeWeightsContainer.innerHTML = '';
-      for(let i=0; i < count; i++) {
-        const div = document.createElement('div');
-        div.style.marginTop = '10px';
-        const label = document.createElement('label');
-        label.textContent = `Обʼємна вага місця #${i+1} (кг) *`;
-        label.htmlFor = `volumeWeight${i}`;
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.step = '0.01';
-        input.min = '0';
-        input.required = true;
-        input.id = `volumeWeight${i}`;
-        input.value = values[i] || '';
-        div.appendChild(label);
-        div.appendChild(input);
-        volumeWeightsContainer.appendChild(div);
-      }
-    }
-
-    placesCountInput.addEventListener('input', () => {
-      const val = parseInt(placesCountInput.value);
-      if(val > 0) {
-        createVolumeWeightInputs(val);
-      } else {
-        volumeWeightsContainer.innerHTML = '';
-      }
+    parcels.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.number}</td>
+        <td>${p.weight.toFixed(2)}</td>
+        <td>${p.placesCount}</td>
+        <td>${p.volumeWeight.toFixed(2)}</td>
+        <td>${p.city}</td>
+        <td>${p.npBranch}</td>
+        <td>${p.phone}</td>
+        <td>${p.price.toFixed(2)}</td>
+        <td>${p.description || ''}</td>
+      `;
+      parcelList.appendChild(tr);
     });
+    jsonData.value = JSON.stringify(parcels, null, 2);
+  }
 
-    // Відобразити всі посилки у таблиці
-    async function renderParcels() {
-      const parcelList = document.getElementById('parcelList');
-      parcelList.innerHTML = '';
-      try {
-        const parcels = await getAllParcels();
-        if(parcels.length === 0) {
-          const tr = document.createElement('tr');
-          const td = document.createElement('td');
-          td.colSpan = 10;
-          td.style.textAlign = 'center';
-          td.textContent = 'Немає доданих посилок';
-          tr.appendChild(td);
-          parcelList.appendChild(tr);
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const number = form.number.value.trim();
+    const weight = parseFloat(form.weight.value);
+    const placesCount = parseInt(form.placesCount.value);
+    const volumeWeight = parseFloat(form.volumeWeight.value);
+    const city = form.city.value.trim();
+    const npBranch = form.npBranch.value.trim();
+    const phone = form.phone.value.trim();
+    const price = parseFloat(form.price.value);
+    const description = form.description.value.trim();
+
+    if(!number || isNaN(weight) || isNaN(placesCount) || isNaN(volumeWeight) || !city || !npBranch || !phone || isNaN(price)) {
+      alert('Будь ласка, заповніть усі обовʼязкові поля правильно.');
+      return;
+    }
+    const phoneRegex = /^\+?\d{7,15}$/;
+    if (!phoneRegex.test(phone)) {
+      alert('Введіть коректний номер телефону.');
+      return;
+    }
+
+    if(parcels.some(p => p.number === number)) {
+      alert('Посилка з таким номером вже існує!');
+      return;
+    }
+
+    parcels.push({number, weight, placesCount, volumeWeight, city, npBranch, phone, price, description});
+    renderParcels();
+    form.reset();
+  });
+
+  loadJsonBtn.addEventListener('click', () => {
+    try {
+      const imported = JSON.parse(jsonData.value);
+      if (!Array.isArray(imported)) throw new Error('JSON має бути масивом.');
+      // Простенька валідація обʼєктів
+      for (const p of imported) {
+        if (typeof p.number !== 'string' || typeof p.city !== 'string') {
+          alert('Некоректний формат даних у JSON.');
           return;
         }
-
-        parcels.forEach(p => {
-          const tr = document.createElement('tr');
-
-          const volumeWeightStr = (p.volumeWeights || []).map(w => parseFloat(w).toFixed(2)).join(', ');
-
-          tr.innerHTML = `
-            <td data-label="№ посилки">${p.number}</td>
-            <td data-label="Вага (кг)">${parseFloat(p.weight).toFixed(2)}</td>
-            <td data-label="Кількість місць">${p.placesCount}</td>
-            <td data-label="Обʼємна вага (кг)">${volumeWeightStr}</td>
-            <td data-label="Місто">${p.city}</td>
-            <td data-label="Відділення НП">${p.npBranch}</td>
-            <td data-label="Телефон">${p.receiverPhone}</td>
-            <td data-label="Вартість (€)">${parseFloat(p.priceEuro).toFixed(2)}</td>
-            <td data-label="Опис">${p.description || ''}</td>
-            <td data-label="Дії" class="actions">
-              <button class="editBtn" data-id="${p.id}">Редагувати</button>
-              <button class="deleteBtn" data-id="${p.id}">Видалити</button>
-            </td>
-          `;
-          parcelList.appendChild(tr);
-        });
-      } catch (err) {
-        alert('Помилка завантаження посилок');
       }
-    }
-
-    // Заповнити форму для редагування
-    async function loadParcelToForm(id) {
-      const tx = db.transaction(STORE_NAME, 'readonly');
-      const store = tx.objectStore(STORE_NAME);
-      const request = store.get(Number(id));
-      request.onsuccess = () => {
-        const p = request.result;
-        if(p) {
-          document.getElementById('editIndex').value = p.id;
-          document.getElementById('parcelNumber').value = p.number;
-          document.getElementById('weight').value = p.weight;
-          document.getElementById('placesCount').value = p.placesCount;
-          createVolumeWeightInputs(p.placesCount, p.volumeWeights);
-          document.getElementById('city').value = p.city;
-          document.getElementById('npBranch').value = p.npBranch;
-          document.getElementById('receiverPhone').value = p.receiverPhone;
-          document.getElementById('priceEuro').value = p.priceEuro;
-          document.getElementById('description').value = p.description || '';
-          window.scrollTo({top:0, behavior:'smooth'});
-        }
-      };
-      request.onerror = () => alert('Помилка завантаження посилки для редагування');
-    }
-
-    // Ініціалізація
-    openDb().then(() => {
+      parcels = imported;
       renderParcels();
-    }).catch(alert);
+    } catch(err) {
+      alert('Помилка при завантаженні JSON: ' + err.message);
+    }
+  });
 
-    // Обробка сабміту форми
-    document.getElementById('parcelForm').addEventListener('submit', async e => {
-      e.preventDefault();
+  renderParcels();
+</script>
 
-      const id = document.getElementById('editIndex').value;
-      const number = document.getElementById('parcelNumber').value.trim();
-      const weight = parseFloat(document.getElementById('weight').value);
-      const placesCount = parseInt(document.getElementById('placesCount').value);
-      const city = document.getElementById('city').value.trim();
-      const npBranch = document.getElementById('npBranch').value.trim();
-      const receiverPhone = document.getElementById('receiverPhone').value.trim();
-      const priceEuro = parseFloat(document.getElementById('priceEuro').value);
-      const description = document.getElementById('description').value.trim();
-
-      const volumeWeights = [];
-      for(let i = 0; i < placesCount; i++) {
-        const val = document.getElementById(`volumeWeight${i}`).value;
-        if(val === '' || isNaN(val) || parseFloat(val) < 0) {
-          alert(`Введіть коректну обʼємну вагу для місця #${i+1}`);
-          return;
-        }
-        volumeWeights.push(parseFloat(val));
-      }
-
-      if(!validatePhone(receiverPhone)) {
-        alert('Введіть коректний номер телефону у форматі +380XXXXXXXXX');
-        return;
-      }
-
-      try {
-        const parcel = {
-          number, weight, placesCount, volumeWeights, city, npBranch, receiverPhone, priceEuro, description
-        };
-        if(id) {
-          parcel.id = Number(id);
-        }
-        await saveParcel(parcel);
-        alert('Посилка успішно збережена
+</body>
+</html>
