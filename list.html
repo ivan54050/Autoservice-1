@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Посилки</title>
+  <style>
+    body { font-family: sans-serif; padding: 1em; max-width: 480px; margin: auto; }
+    .parcel { border: 1px solid #ccc; padding: 10px; margin: 10px 0; border-radius: 6px; }
+    .parcel h3 { margin: 0 0 5px; }
+  </style>
+</head>
+<body>
+  <h1>Список посилок</h1>
+  <div id="list">Завантаження...</div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBjLuotxHzCIkSLduDlLb3AYTc6A6A8NYc",
+      authDomain: "parcelapp-900b9.firebaseapp.com",
+      projectId: "parcelapp-900b9",
+      storageBucket: "parcelapp-900b9.appspot.com",
+      messagingSenderId: "310089427450",
+      appId: "1:310089427450:web:f40df867b722ce2128dc43",
+      measurementId: "G-G4SQCW0FXD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const list = document.getElementById('list');
+
+    const snapshot = await getDocs(collection(db, "parcels"));
+    if (snapshot.empty) {
+      list.innerHTML = "Немає посилок.";
+    } else {
+      list.innerHTML = "";
+      snapshot.forEach(doc => {
+        const p = doc.data();
+        const div = document.createElement('div');
+        div.className = 'parcel';
+        div.innerHTML = `
+          <h3>№ ${p.number}</h3>
+          <p>Вага: ${p.weight} кг</p>
+          <p>Місто: ${p.city}, Відділення: ${p.branch}</p>
+          <p>Тел: ${p.phone}, Ціна: €${p.price}</p>
+          <small>${new Date(p.createdAt).toLocaleString()}</small>
+        `;
+        list.appendChild(div);
+      });
+    }
+  </script>
+</body>
+</html>
