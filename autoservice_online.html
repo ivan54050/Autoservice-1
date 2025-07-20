@@ -1,432 +1,503 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Автосервіс - Онлайн рахунки і акти</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin: auto;
-      padding: 20px;
-      background: #f9f9f9;
-    }
-    h1, h2 {
-      text-align: center;
-      color: #333;
-    }
-    label {
-      display: block;
-      margin-top: 10px;
-    }
-    input, textarea, select {
-      width: 100%;
-      padding: 6px;
-      margin-top: 4px;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 12px;
-      padding: 10px 15px;
-      background-color: #007bff;
-      border: none;
-      color: white;
-      cursor: pointer;
-      border-radius: 4px;
-      font-size: 16px;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    .section {
-      background: white;
-      padding: 15px 20px;
-      margin-bottom: 25px;
-      border-radius: 8px;
-      box-shadow: 0 0 7px rgba(0,0,0,0.1);
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 15px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background: #007bff;
-      color: white;
-    }
-    .invoice, .act {
-      white-space: pre-wrap;
-      background: #eee;
-      padding: 10px;
-      border-radius: 6px;
-      margin-top: 15px;
-      font-family: monospace;
-    }
-    .small-btn {
-      font-size: 12px;
-      padding: 5px 8px;
-      margin-left: 5px;
-      background: #dc3545;
-    }
-    #importFile {
-      margin-top: 12px;
-    }
-    .btn-group {
-      margin-top: 10px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-  </style>
-  <!-- Підключаємо jsPDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Автосервіс - Онлайн</title>
+<style>
+  /* Загальний стиль */
+  body {
+    margin: 0; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #121212;
+    color: #f0f0f0;
+  }
+  header {
+    background: #000;
+    padding: 1rem 2rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    user-select: none;
+    text-align: center;
+  }
+  nav {
+    display: flex;
+    justify-content: center;
+    background: #222;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: #f0f0f0;
+    padding: 1rem 2rem;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    border-bottom: 3px solid transparent;
+    transition: border-color 0.3s;
+  }
+  nav button.active,
+  nav button:hover {
+    border-bottom: 3px solid #fff;
+  }
+  main {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+  section {
+    display: none;
+  }
+  section.active {
+    display: block;
+  }
+  /* Форма та таблиці */
+  form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  form label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+  form input, form textarea {
+    width: 100%;
+    padding: 0.5rem;
+    background: #222;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #f0f0f0;
+    resize: vertical;
+  }
+  form textarea {
+    grid-column: 1 / -1;
+    min-height: 80px;
+  }
+  form button {
+    grid-column: 1 / -1;
+    padding: 0.75rem;
+    background: #000;
+    border: 1px solid #fff;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.3s;
+  }
+  form button:hover {
+    background: #333;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #444;
+    padding: 0.75rem;
+    text-align: left;
+  }
+  th {
+    background: #222;
+  }
+  /* Кнопки дій для рядків */
+  .action-btn {
+    background: none;
+    border: none;
+    color: #ff4444;
+    cursor: pointer;
+    font-weight: 700;
+  }
+  .action-btn:hover {
+    color: #ff0000;
+  }
+  /* PDF і Імпорт/Експорт */
+  .controls {
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 1rem;
+  }
+  .controls button, .controls input[type=file] {
+    background: #000;
+    border: 1px solid #fff;
+    color: #fff;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.3s;
+  }
+  .controls button:hover {
+    background: #333;
+  }
+  .controls input[type=file] {
+    padding: 0.3rem;
+  }
+</style>
 </head>
 <body>
 
-  <h1>Автосервіс — Онлайн рахунки та акти</h1>
+<header>Автосервіс Онлайн</header>
 
-  <div class="section" id="client-section">
-    <h2>Додати клієнта</h2>
-    <label>Ім'я клієнта:
-      <input type="text" id="clientName" />
-    </label>
-    <label>Телефон або email:
-      <input type="text" id="clientContact" />
-    </label>
-    <button onclick="addClient()">Додати клієнта</button>
-    <h3>Список клієнтів</h3>
-    <select id="clientsList" size="5" style="width: 100%;"></select>
-  </div>
+<nav>
+  <button class="tab-btn active" data-tab="clients">Клієнти</button>
+  <button class="tab-btn" data-tab="invoices">Рахунки</button>
+  <button class="tab-btn" data-tab="acts">Акти</button>
+</nav>
 
-  <div class="section" id="work-section">
-    <h2>Створити рахунок</h2>
-    <label>Оберіть клієнта:
-      <select id="invoiceClient"></select>
-    </label>
-    <label>Опис робіт (наприклад, заміна масла):
-      <input type="text" id="workDescription" />
-    </label>
-    <label>Ціна (грн):
-      <input type="number" id="workPrice" />
-    </label>
-    <button onclick="addWork()">Додати роботу</button>
+<main>
+  <!-- Клієнти -->
+  <section id="clients" class="active">
+    <h2>Клієнти</h2>
+    <form id="clientForm">
+      <label for="clientName">Ім'я клієнта</label>
+      <input type="text" id="clientName" required placeholder="Петро Іванов" />
+      
+      <label for="clientPhone">Телефон</label>
+      <input type="tel" id="clientPhone" placeholder="+380..." />
 
-    <h3>Роботи у рахунку</h3>
-    <table id="workTable">
-      <thead><tr><th>Опис</th><th>Ціна</th><th>Видалити</th></tr></thead>
+      <button type="submit">Додати клієнта</button>
+    </form>
+
+    <table id="clientsTable">
+      <thead>
+        <tr><th>Ім'я</th><th>Телефон</th><th>Дія</th></tr>
+      </thead>
       <tbody></tbody>
     </table>
+  </section>
 
-    <div class="btn-group">
-      <button onclick="generateInvoice()">Згенерувати рахунок</button>
-      <button onclick="printInvoice()">Друк рахунку</button>
-      <button onclick="saveInvoicePDF()">Зберегти PDF рахунку</button>
+  <!-- Рахунки -->
+  <section id="invoices">
+    <h2>Рахунки</h2>
+    <form id="invoiceForm">
+      <label for="invoiceClient">Клієнт</label>
+      <input type="text" id="invoiceClient" placeholder="Петро Іванов" required />
+
+      <label for="invoiceCar">Авто</label>
+      <input type="text" id="invoiceCar" placeholder="Toyota Corolla" required />
+
+      <label for="invoiceWork">Роботи</label>
+      <textarea id="invoiceWork" placeholder="Опис робіт" required></textarea>
+
+      <label for="invoicePrice">Ціна, грн</label>
+      <input type="number" id="invoicePrice" placeholder="1000" min="0" required />
+
+      <button type="submit">Додати рахунок</button>
+    </form>
+
+    <div class="controls">
+      <button id="exportInvoices">Експорт JSON</button>
+      <button id="importInvoicesBtn">Імпорт JSON</button>
+      <input type="file" id="importInvoices" accept=".json" style="display:none" />
+      <button id="printInvoices">Друк</button>
+      <button id="pdfInvoices">Зберегти PDF</button>
     </div>
 
-    <pre class="invoice" id="invoiceOutput"></pre>
-  </div>
+    <table id="invoicesTable">
+      <thead>
+        <tr><th>Клієнт</th><th>Авто</th><th>Роботи</th><th>Ціна, грн</th><th>Дія</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
 
-  <div class="section" id="act-section">
-    <h2>Згенерувати акт виконаних робіт</h2>
-    <label>Оберіть рахунок (номер):
-      <select id="invoiceForAct"></select>
-    </label>
-    <div class="btn-group">
-      <button onclick="generateAct()">Згенерувати акт</button>
-      <button onclick="printAct()">Друк акту</button>
-      <button onclick="saveActPDF()">Зберегти PDF акту</button>
+  <!-- Акти -->
+  <section id="acts">
+    <h2>Акти виконаних робіт</h2>
+    <form id="actForm">
+      <label for="actClient">Клієнт</label>
+      <input type="text" id="actClient" placeholder="Петро Іванов" required />
+
+      <label for="actCar">Авто</label>
+      <input type="text" id="actCar" placeholder="Toyota Corolla" required />
+
+      <label for="actWork">Роботи</label>
+      <textarea id="actWork" placeholder="Опис робіт" required></textarea>
+
+      <button type="submit">Додати акт</button>
+    </form>
+
+    <div class="controls">
+      <button id="exportActs">Експорт JSON</button>
+      <button id="importActsBtn">Імпорт JSON</button>
+      <input type="file" id="importActs" accept=".json" style="display:none" />
+      <button id="printActs">Друк</button>
+      <button id="pdfActs">Зберегти PDF</button>
     </div>
 
-    <pre class="act" id="actOutput"></pre>
-  </div>
+    <table id="actsTable">
+      <thead>
+        <tr><th>Клієнт</th><th>Авто</th><th>Роботи</th><th>Дія</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+</main>
 
-  <div class="section" id="data-section">
-    <h2>Імпорт / Експорт даних</h2>
-    <button onclick="exportData()">Експортувати дані (JSON)</button>
-    <input type="file" id="importFile" accept=".json" />
-    <button onclick="importData()">Імпортувати дані</button>
-  </div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
-  // Ініціалізація даних з localStorage
-  let clients = JSON.parse(localStorage.getItem('clients') || '[]');
-  let works = [];
-  let invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+(() => {
+  // Вкладки
+  const tabs = document.querySelectorAll('nav button.tab-btn');
+  const sections = document.querySelectorAll('main section');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      sections.forEach(s => s.classList.remove('active'));
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
 
-  function refreshClients() {
-    const clientsList = document.getElementById('clientsList');
-    const invoiceClient = document.getElementById('invoiceClient');
-    clientsList.innerHTML = '';
-    invoiceClient.innerHTML = '<option value="">-- оберіть клієнта --</option>';
+  // Дані з LocalStorage або пусті
+  let clients = JSON.parse(localStorage.getItem('clients')) || [];
+  let invoices = JSON.parse(localStorage.getItem('invoices')) || [];
+  let acts = JSON.parse(localStorage.getItem('acts')) || [];
+
+  // Функції рендеру таблиць
+  function renderClients() {
+    const tbody = document.querySelector('#clientsTable tbody');
+    tbody.innerHTML = '';
     clients.forEach((c, i) => {
-      const opt = document.createElement('option');
-      opt.value = i;
-      opt.textContent = `${c.name} (${c.contact})`;
-      clientsList.appendChild(opt);
-
-      const opt2 = document.createElement('option');
-      opt2.value = i;
-      opt2.textContent = `${c.name} (${c.contact})`;
-      invoiceClient.appendChild(opt2);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${c.name}</td>
+        <td>${c.phone || ''}</td>
+        <td><button class="action-btn" onclick="deleteClient(${i})">Видалити</button></td>
+      `;
+      tbody.appendChild(tr);
     });
   }
-
-  function addClient() {
-    const name = document.getElementById('clientName').value.trim();
-    const contact = document.getElementById('clientContact').value.trim();
-    if (!name) { alert('Введіть ім'я клієнта'); return; }
-    clients.push({name, contact});
-    localStorage.setItem('clients', JSON.stringify(clients));
-    document.getElementById('clientName').value = '';
-    document.getElementById('clientContact').value = '';
-    refreshClients();
-    alert('Клієнта додано');
-  }
-
-  function refreshWorks() {
-    const tbody = document.querySelector('#workTable tbody');
+  function renderInvoices() {
+    const tbody = document.querySelector('#invoicesTable tbody');
     tbody.innerHTML = '';
-    works.forEach((w, i) => {
+    invoices.forEach((inv, i) => {
       const tr = document.createElement('tr');
-      const tdDesc = document.createElement('td');
-      tdDesc.textContent = w.description;
-      const tdPrice = document.createElement('td');
-      tdPrice.textContent = w.price.toFixed(2);
-      const tdDel = document.createElement('td');
-      const btnDel = document.createElement('button');
-      btnDel.textContent = 'Видалити';
-      btnDel.className = 'small-btn';
-      btnDel.onclick = () => {
-        works.splice(i,1);
-        refreshWorks();
-      };
-      tdDel.appendChild(btnDel);
-      tr.appendChild(tdDesc);
-      tr.appendChild(tdPrice);
-      tr.appendChild(tdDel);
+      tr.innerHTML = `
+        <td>${inv.client}</td>
+        <td>${inv.car}</td>
+        <td>${inv.work}</td>
+        <td>${inv.price}</td>
+        <td><button class="action-btn" onclick="deleteInvoice(${i})">Видалити</button></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  function renderActs() {
+    const tbody = document.querySelector('#actsTable tbody');
+    tbody.innerHTML = '';
+    acts.forEach((act, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${act.client}</td>
+        <td>${act.car}</td>
+        <td>${act.work}</td>
+        <td><button class="action-btn" onclick="deleteAct(${i})">Видалити</button></td>
+      `;
       tbody.appendChild(tr);
     });
   }
 
-  function addWork() {
-    const description = document.getElementById('workDescription').value.trim();
-    const priceStr = document.getElementById('workPrice').value.trim();
-    const price = parseFloat(priceStr);
-    if (!description) { alert('Введіть опис роботи'); return; }
-    if (isNaN(price) || price <= 0) { alert('Введіть коректну ціну'); return; }
-    works.push({description, price});
-    document.getElementById('workDescription').value = '';
-    document.getElementById('workPrice').value = '';
-    refreshWorks();
-  }
+  // Виклики рендеру
+  renderClients();
+  renderInvoices();
+  renderActs();
 
-  function generateInvoice() {
-    const clientIndex = document.getElementById('invoiceClient').value;
-    if (clientIndex === '') { alert('Оберіть клієнта'); return; }
-    if (works.length === 0) { alert('Додайте хоча б одну роботу'); return; }
-    const client = clients[clientIndex];
-    const invoiceNumber = invoices.length + 1;
-    const date = new Date().toLocaleDateString();
+  // Додавання клієнта
+  document.getElementById('clientForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('clientName').value.trim();
+    const phone = document.getElementById('clientPhone').value.trim();
+    if (!name) {
+      alert('Вкажіть ім\'я клієнта');
+      return;
+    }
+    clients.push({ name, phone });
+    localStorage.setItem('clients', JSON.stringify(clients));
+    renderClients();
+    e.target.reset();
+  });
 
-    let total = 0;
-    let textWorks = '';
-    works.forEach((w,i) => {
-      textWorks += `${i+1}. ${w.description} — ${w.price.toFixed(2)} грн
-`;
-      total += w.price;
-    });
+  // Видалення клієнта
+  window.deleteClient = i => {
+    if (confirm('Видалити клієнта?')) {
+      clients.splice(i,1);
+      localStorage.setItem('clients', JSON.stringify(clients));
+      renderClients();
+    }
+  };
 
-    const invoiceText = 
-`РАХУНОК №${invoiceNumber}
-Дата: ${date}
-
-Клієнт: ${client.name}
-Контакт: ${client.contact}
-
-Роботи:
-${textWorks}
-Загальна сума: ${total.toFixed(2)} грн
-
-Дякуємо за співпрацю!
-`;
-
-    invoices.push({
-      number: invoiceNumber,
-      date,
-      client,
-      works: [...works],
-      total
-    });
+  // Додавання рахунку
+  document.getElementById('invoiceForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const client = document.getElementById('invoiceClient').value.trim();
+    const car = document.getElementById('invoiceCar').value.trim();
+    const work = document.getElementById('invoiceWork').value.trim();
+    const price = document.getElementById('invoicePrice').value.trim();
+    if (!client || !car || !work || !price) {
+      alert('Заповніть всі поля рахунку');
+      return;
+    }
+    invoices.push({ client, car, work, price });
     localStorage.setItem('invoices', JSON.stringify(invoices));
+    renderInvoices();
+    e.target.reset();
+  });
 
-    works = [];
-    refreshWorks();
-    refreshInvoicesForAct();
+  // Видалення рахунку
+  window.deleteInvoice = i => {
+    if (confirm('Видалити рахунок?')) {
+      invoices.splice(i,1);
+      localStorage.setItem('invoices', JSON.stringify(invoices));
+      renderInvoices();
+    }
+  };
 
-    document.getElementById('invoiceOutput').textContent = invoiceText;
-  }
-
-  function refreshInvoicesForAct() {
-    const sel = document.getElementById('invoiceForAct');
-    sel.innerHTML = '';
-    invoices.forEach(inv => {
-      const opt = document.createElement('option');
-      opt.value = inv.number;
-      opt.textContent = `Рахунок №${inv.number} від ${inv.date} — ${inv.client.name}`;
-      sel.appendChild(opt);
-    });
-  }
-
-  function generateAct() {
-    const num = parseInt(document.getElementById('invoiceForAct').value);
-    if (isNaN(num)) {
-      alert('Оберіть рахунок');
+  // Додавання акту
+  document.getElementById('actForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const client = document.getElementById('actClient').value.trim();
+    const car = document.getElementById('actCar').value.trim();
+    const work = document.getElementById('actWork').value.trim();
+    if (!client || !car || !work) {
+      alert('Заповніть всі поля акту');
       return;
     }
-    const invoice = invoices.find(inv => inv.number === num);
-    if (!invoice) {
-      alert('Рахунок не знайдено');
-      return;
+    acts.push({ client, car, work });
+    localStorage.setItem('acts', JSON.stringify(acts));
+    renderActs();
+    e.target.reset();
+  });
+
+  // Видалення акту
+  window.deleteAct = i => {
+    if (confirm('Видалити акт?')) {
+      acts.splice(i,1);
+      localStorage.setItem('acts', JSON.stringify(acts));
+      renderActs();
     }
+  };
 
-    let textWorks = '';
-    invoice.works.forEach((w,i) => {
-      textWorks += `${i+1}. ${w.description} — ${w.price.toFixed(2)} грн
-`;
-    });
-
-    const actText = 
-`АКТ ВИКОНАНИХ РОБІТ
-Дата: ${invoice.date}
-Рахунок №${invoice.number}
-
-Клієнт: ${invoice.client.name}
-Контакт: ${invoice.client.contact}
-
-Виконані роботи:
-${textWorks}
-Загальна сума: ${invoice.total.toFixed(2)} грн
-
-Підписи:
-Клієнт: ____________      Виконавець: ____________
-
-Дякуємо за довіру!
-`;
-
-    document.getElementById('actOutput').textContent = actText;
-  }
-
-  function printInvoice() {
-    const content = document.getElementById('invoiceOutput').textContent;
-    if (!content) {
-      alert('Спочатку згенеруйте рахунок');
-      return;
-    }
-    const printWindow = window.open('', '', 'width=600,height=600');
-    printWindow.document.write('<pre style="font-family: monospace; white-space: pre-wrap;">' + content + '</pre>');
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  }
-
-  function printAct() {
-    const content = document.getElementById('actOutput').textContent;
-    if (!content) {
-      alert('Спочатку згенеруйте акт');
-      return;
-    }
-    const printWindow = window.open('', '', 'width=600,height=600');
-    printWindow.document.write('<pre style="font-family: monospace; white-space: pre-wrap;">' + content + '</pre>');
-    printWindow.document.close();
-    printWindow.focus();
-    printWindow.print();
-    printWindow.close();
-  }
-
-  async function saveInvoicePDF() {
-    const content = document.getElementById('invoiceOutput').textContent;
-    if (!content) {
-      alert('Спочатку згенеруйте рахунок');
-      return;
-    }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const splitText = doc.splitTextToSize(content, 180);
-    doc.setFont("Courier");
-    doc.setFontSize(12);
-    doc.text(splitText, 10, 10);
-    doc.save('invoice.pdf');
-  }
-
-  async function saveActPDF() {
-    const content = document.getElementById('actOutput').textContent;
-    if (!content) {
-      alert('Спочатку згенеруйте акт');
-      return;
-    }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const splitText = doc.splitTextToSize(content, 180);
-    doc.setFont("Courier");
-    doc.setFontSize(12);
-    doc.text(splitText, 10, 10);
-    doc.save('act.pdf');
-  }
-
-  function exportData() {
-    const data = {
-      clients,
-      invoices
-    };
-    const dataStr = JSON.stringify(data, null, 2);
-    const blob = new Blob([dataStr], {type: "application/json"});
+  // Експорт JSON
+  function exportJSON(data, filename) {
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = url;
-    a.download = "autoservice_data.json";
-    document.body.appendChild(a);
+    a.href = url; a.download = filename;
     a.click();
-    document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
 
-  function importData() {
-    const fileInput = document.getElementById('importFile');
-    if (!fileInput.files.length) {
-      alert('Оберіть файл для імпорту');
-      return;
-    }
-    const file = fileInput.files[0];
+  // Імпорт JSON
+  function importJSON(input, callback) {
+    if (input.files.length === 0) return;
+    const file = input.files[0];
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = e => {
       try {
         const data = JSON.parse(e.target.result);
-        if (!data.clients || !data.invoices) throw "Невірний формат файлу";
-        clients = data.clients;
-        invoices = data.invoices;
-        localStorage.setItem('clients', JSON.stringify(clients));
-        localStorage.setItem('invoices', JSON.stringify(invoices));
-        refreshClients();
-        refreshInvoicesForAct();
-        alert('Дані успішно імпортовані');
-      } catch(err) {
-        alert('Помилка імпорту: ' + err);
+        callback(data);
+      } catch {
+        alert('Помилка: Невірний формат JSON');
       }
+      input.value = '';
     };
     reader.readAsText(file);
   }
 
-  refreshClients();
-  refreshWorks();
-  refreshInvoicesForAct();
-</script>
+  // Експорт/імпорт рахунків
+  document.getElementById('exportInvoices').addEventListener('click', () => {
+    exportJSON(invoices, 'invoices.json');
+  });
+  document.getElementById('importInvoicesBtn').addEventListener('click', () => {
+    document.getElementById('importInvoices').click();
+  });
+  document.getElementById('importInvoices').addEventListener('change', () => {
+    importJSON(document.getElementById('importInvoices'), data => {
+      if (Array.isArray(data)) {
+        invoices = invoices.concat(data);
+        localStorage.setItem('invoices', JSON.stringify(invoices));
+        renderInvoices();
+      }
+    });
+  });
 
-</body>
-</html>
+  // Експорт/імпорт актів
+  document.getElementById('exportActs').addEventListener('click', () => {
+    exportJSON(acts, 'acts.json');
+  });
+  document.getElementById('importActsBtn').addEventListener('click', () => {
+    document.getElementById('importActs').click();
+  });
+  document.getElementById('importActs').addEventListener('change', () => {
+    importJSON(document.getElementById('importActs'), data => {
+      if (Array.isArray(data)) {
+        acts = acts.concat(data);
+        localStorage.setItem('acts', JSON.stringify(acts));
+        renderActs();
+      }
+    });
+  });
+
+  // Друк таблиці
+  function printTable(tableId, title) {
+    const table = document.getElementById(tableId);
+    const newWin = window.open('', '_blank');
+    newWin.document.write(`
+      <html><head><title>${title}</title>
+      <style>body{font-family:sans-serif;padding:20px;} table {border-collapse: collapse;width: 100%;} th, td {border: 1px solid #333;padding: 8px;text-align: left;} th {background: #eee;}</style>
+      </head><body>
+      <h1>${title}</h1>
+      ${table.outerHTML}
+      </body></html>`);
+    newWin.document.close();
+    newWin.focus();
+    newWin.print();
+    newWin.close();
+  }
+
+  // Друк рахунків і актів
+  document.getElementById('printInvoices').addEventListener('click', () => {
+    printTable('invoicesTable', 'Рахунки');
+  });
+  document.getElementById('printActs').addEventListener('click', () => {
+    printTable('actsTable', 'Акти виконаних робіт');
+  });
+
+  // Збереження PDF (використовуємо jsPDF)
+  const { jsPDF } = window.jspdf;
+
+  function savePDF(tableId, title) {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text(title, 10, 15);
+
+    // Для простоти - конвертуємо таблицю у текст
+    const rows = [];
+    const table = document.getElementById(tableId);
+    const headers = [];
+    table.querySelectorAll('thead th').forEach(th => headers.push(th.textContent));
+    rows.push(headers);
+
+    table.querySelectorAll('tbody tr').forEach(tr => {
+      const row = [];
+      tr.querySelectorAll('td').forEach(td => row.push(td.textContent));
+      rows.push(row);
+    });
+
+    doc.autoTable({
+      head: [headers],
+      body: rows.slice(1),
+      startY: 25,
+      styles: { fontSize: 10 },
+    });
+
+    doc.save(`${title}.pdf`);
+  }
+
+  // Оскільки jsPDF AutoTable не підключений, замінимо savePDF на просте
