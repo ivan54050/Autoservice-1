@@ -46,6 +46,7 @@
   <textarea id="desc" rows="2"></textarea>
 
   <button type="submit">Зберегти</button>
+  <button type="button" class="secondary" onclick="window.open('list.html', '_blank')">Всі посилки</button>
 </form>
 
 <script>
@@ -71,66 +72,53 @@
     renderVolumeInputs(parseInt(countInput.value) || 1);
   });
 
-  renderVolumeInputs(1); // Initial render
+  renderVolumeInputs(1); // initial
 
-  // ініціалізація IndexedDB
   let db;
-  const openDB = indexedDB.open('ParcelsDB', 1);
-  openDB.onupgradeneeded = event => {
-    db = event.target.result;
+  const request = indexedDB.open('ParcelsDB', 1);
+  request.onupgradeneeded = e => {
+    db = e.target.result;
     if (!db.objectStoreNames.contains('parcels')) {
       db.createObjectStore('parcels', { keyPath: 'number' });
     }
   };
+  request.onsuccess = e => db = e.target.result;
+  request.onerror = e => alert('IndexedDB помилка: ' + e.target.errorCode);
 
-  openDB.onsuccess = event => {
-    db = event.target.result;
+  document.getElementById('form').addEventListener('submit', e => {
+    e.preventDefault();
 
-    document.getElementById('form').addEventListener('submit', e => {
-      e.preventDefault();
+    const number = document.getElementById('number').value.trim();
+    const weight = parseFloat(document.getElementById('weight').value);
+    const count = parseInt(countInput.value);
+    const volumes = Array.from(document.getElementsByName('volume')).map(i => parseFloat(i.value));
+    const city = document.getElementById('city').value.trim();
+    const branch = document.getElementById('branch').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const price = parseFloat(document.getElementById('price').value);
+    const desc = document.getElementById('desc').value.trim();
 
-      const number = document.getElementById('number').value.trim();
-      const weight = parseFloat(document.getElementById('weight').value);
-      const count = parseInt(countInput.value);
-      const volumes = Array.from(document.getElementsByName('volume')).map(i => parseFloat(i.value));
-      const city = document.getElementById('city').value.trim();
-      const branch = document.getElementById('branch').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-      const price = parseFloat(document.getElementById('price').value);
-      const desc = document.getElementById('desc').value.trim();
+    if (volumes.length !== count || volumes.some(isNaN)) {
+      alert('Заповніть всі обʼємні ваги коректно!');
+      return;
+    }
 
-      if (volumes.length !== count || volumes.some(isNaN)) {
-        alert('Заповніть всі обʼємні ваги коректно!');
-        return;
-      }
+    const data = { number, weight, count, volumes, city, branch, phone, price, desc, createdAt: new Date().toISOString() };
 
-      const data = {
-        number,
-        weight,
-        count,
-        volumes,
-        city,
-        branch,
-        phone,
-        price,
-        desc,
-        createdAt: new Date().toISOString()
-      };
+    const tx = db.transaction('parcels', 'readwrite');
+    const store = tx.objectStore('parcels');
+    const req = store.put(data);
 
-      const tx = db.transaction(['parcels'], 'readwrite');
-      const store = tx.objectStore('parcels');
-      store.put(data);
-      tx.oncomplete = () => {
-        alert('Посилку збережено!');
-        document.getElementById('form').reset();
-        renderVolumeInputs(1);
-      };
-    });
-  };
+    req.onsuccess = () => {
+      alert('Посилку збережено!');
+      document.getElementById('form').reset();
+      renderVolumeInputs(1);
+    };
 
-  openDB.onerror = () => {
-    alert('Помилка підключення до бази даних IndexedDB');
-  };
+    req.onerror = () => {
+      alert('Помилка збереження. Можливо, номер вже існує.');
+    };
+  });
 </script>
 </body>
 </html>
