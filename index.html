@@ -2,177 +2,33 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Автосервіс Онлайн</title>
 <style>
-  body {
-    margin:0; padding:0;
-    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-    background: #fff;
-    color: #000;
-  }
-  header {
-    background: #000;
-    color: white;
-    padding: 1rem;
-    font-size: 1.6rem;
-    font-weight: 600;
-    text-align: center;
-  }
-  nav {
-    display: flex;
-    background: #fff;
-    box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
-    overflow-x: auto;
-  }
+  body { font-family: Arial, sans-serif; margin:0; padding:0; background:#fff; color:#000;}
+  header {background:#000; color:#fff; padding:1rem; text-align:center; font-weight:bold; font-size:1.5rem;}
+  nav {display:flex; background:#eee;}
   nav button {
-    flex: 1 0 auto;
-    border: none;
-    background: transparent;
-    padding: 0.8rem 1rem;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    color: #444;
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s ease;
-    white-space: nowrap;
+    flex:1; padding:1rem; border:none; background:#ddd; cursor:pointer; font-weight:bold; font-size:1rem;
   }
-  nav button.active {
-    color: #000;
-    border-bottom: 3px solid #000;
-  }
-  main {
-    padding: 1rem;
-    max-width: 900px;
-    margin: auto;
-  }
-  section {
-    display: none;
-  }
-  section.active {
-    display: block;
-  }
-  form {
-    display: grid;
-    gap: 0.8rem;
-    margin-bottom: 1.5rem;
-  }
+  nav button.active { background:#000; color:#fff; }
+  main {padding:1rem; max-width:700px; margin:auto;}
+  section {display:none;}
+  section.active {display:block;}
+  form {margin-bottom:1rem;}
   input, select, textarea {
-    padding: 0.6rem 0.9rem;
-    font-size: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    background: white;
-    color: #222;
-    resize: vertical;
+    width: 100%; padding:0.5rem; margin-bottom:0.5rem; box-sizing:border-box;
   }
   button.submit {
-    background: #000;
-    color: white;
-    font-weight: 700;
-    border: none;
-    padding: 0.7rem 1rem;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    justify-self: start;
+    background:#000; color:#fff; border:none; padding:0.7rem; width:100%; cursor:pointer;
   }
-  button.submit:hover {
-    background: #333;
+  button.submit:hover { background:#333;}
+  table {width:100%; border-collapse:collapse; margin-top:1rem;}
+  th, td {border:1px solid #ccc; padding:0.5rem; text-align:left;}
+  button.delete {
+    background:#e74c3c; border:none; color:#fff; cursor:pointer; padding:0.3rem 0.5rem; border-radius:3px;
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-  }
-  th, td {
-    padding: 0.5rem 0.7rem;
-    border-bottom: 1px solid #eee;
-    text-align: left;
-    vertical-align: middle;
-  }
-  th {
-    background: #f1f5f9;
-    font-weight: 700;
-    color: #555;
-  }
-  td button.delete {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.6rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: background-color 0.3s ease;
-  }
-  td button.delete:hover {
-    background: #c0392b;
-  }
-  td button.pdf-btn {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 0.25rem 0.6rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    margin-right: 0.3rem;
-    transition: background-color 0.3s ease;
-  }
-  td button.pdf-btn:hover {
-    background: #1e7e34;
-  }
-  .actions {
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.7rem;
-  }
-  .actions button {
-    background: #000;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    flex: 1 0 auto;
-    min-width: 120px;
-  }
-  .actions button:hover {
-    background: #333;
-  }
-  label {
-    font-weight: 600;
-  }
-  @media (max-width: 600px) {
-    nav button {
-      font-size: 0.9rem;
-      padding: 0.6rem 0.8rem;
-    }
-    input, select, textarea {
-      font-size: 1rem;
-    }
-    table {
-      font-size: 0.85rem;
-    }
-    header {
-      font-size: 1.4rem;
-      padding: 1rem 0.5rem;
-    }
-    main {
-      padding: 1rem 0.5rem 2rem 0.5rem;
-    }
-    .actions {
-      flex-direction: column;
-    }
-    .actions button {
-      min-width: 100%;
-    }
-  }
+  button.delete:hover { background:#c0392b;}
 </style>
 </head>
 <body>
@@ -180,23 +36,19 @@
 <header>Автосервіс Онлайн</header>
 
 <nav>
-  <button class="tab active" data-tab="clients" type="button">Клієнти</button>
-  <button class="tab" data-tab="cars" type="button">Автомобілі</button>
-  <button class="tab" data-tab="parts" type="button">Запчастини</button>
-  <button class="tab" data-tab="invoices" type="button">Рахунки</button>
-  <button class="tab" data-tab="acts" type="button">Акти</button>
+  <button class="tab active" data-tab="clients">Клієнти</button>
+  <button class="tab" data-tab="cars">Автомобілі</button>
+  <button class="tab" data-tab="parts">Запчастини</button>
+  <button class="tab" data-tab="invoices">Рахунки</button>
 </nav>
 
 <main>
-  <section id="clients" class="active" role="tabpanel" aria-label="Клієнти">
-    <div class="actions">
-      <button id="importClientsBtn" type="button">Імпорт клієнтів</button>
-      <button id="exportClientsBtn" type="button">Експорт клієнтів</button>
-    </div>
+  <section id="clients" class="active">
+    <h2>Клієнти</h2>
     <form id="clientForm">
-      <input type="text" id="clientName" placeholder="Ім'я клієнта" required autocomplete="off" />
-      <input type="tel" id="clientPhone" placeholder="Телефон" autocomplete="off" />
-      <button type="submit" class="submit">Додати клієнта</button>
+      <input type="text" id="clientName" placeholder="Ім'я клієнта" required />
+      <input type="tel" id="clientPhone" placeholder="Телефон" />
+      <button class="submit" type="submit">Додати клієнта</button>
     </form>
     <table>
       <thead><tr><th>Ім'я</th><th>Телефон</th><th>Видалити</th></tr></thead>
@@ -204,100 +56,41 @@
     </table>
   </section>
 
-  <section id="cars" role="tabpanel" aria-label="Автомобілі">
-    <div class="actions">
-      <button id="importCarsBtn" type="button">Імпорт авто</button>
-      <button id="exportCarsBtn" type="button">Експорт авто</button>
-    </div>
+  <section id="cars">
+    <h2>Автомобілі</h2>
     <form id="carForm">
-      <input type="text" id="carClient" placeholder="Власник (клієнт)" required list="clientNames" autocomplete="off"/>
-      <input type="text" id="carModel" placeholder="Модель автомобіля" required autocomplete="off"/>
-      <input type="text" id="carVIN" placeholder="VIN (опційно)" autocomplete="off"/>
-      <button type="submit" class="submit">Додати автомобіль</button>
+      <input type="text" id="carOwner" placeholder="Власник (ім'я клієнта)" required />
+      <input type="text" id="carModel" placeholder="Модель автомобіля" required />
+      <input type="text" id="carVIN" placeholder="VIN (необов’язково)" />
+      <button class="submit" type="submit">Додати автомобіль</button>
     </form>
-    <datalist id="clientNames"></datalist>
     <table>
       <thead><tr><th>Власник</th><th>Модель</th><th>VIN</th><th>Видалити</th></tr></thead>
       <tbody id="carList"></tbody>
     </table>
   </section>
 
-  <section id="parts" role="tabpanel" aria-label="Запчастини">
-    <div class="actions">
-      <button id="importPartsBtn" type="button">Імпорт запчастин</button>
-      <button id="exportPartsBtn" type="button">Експорт запчастин</button>
-    </div>
+  <section id="parts">
+    <h2>Запчастини</h2>
     <form id="partForm">
-      <input type="text" id="partName" placeholder="Назва запчастини" required autocomplete="off" />
-      <input type="number" id="partPrice" placeholder="Ціна, грн" required min="0" step="0.01" autocomplete="off" />
-      <button type="submit" class="submit">Додати запчастину</button>
+      <input type="text" id="partName" placeholder="Назва запчастини" required />
+      <input type="number" id="partPrice" placeholder="Ціна" min="0" step="0.01" required />
+      <button class="submit" type="submit">Додати запчастину</button>
     </form>
     <table>
-      <thead><tr><th>Назва</th><th>Ціна, грн</th><th>Видалити</th></tr></thead>
+      <thead><tr><th>Назва</th><th>Ціна</th><th>Видалити</th></tr></thead>
       <tbody id="partList"></tbody>
     </table>
   </section>
 
-  <section id="invoices" role="tabpanel" aria-label="Рахунки">
-    <div class="actions">
-      <button id="importInvoicesBtn" type="button">Імпорт рахунків</button>
-      <button id="exportInvoicesBtn" type="button">Експорт рахунків</button>
-    </div>
-    <form id="invoiceForm">
-      <label for="invoiceClient">Клієнт</label>
-      <input type="text" id="invoiceClient" required list="clientNames" autocomplete="off" />
-      <label for="invoiceCar">Автомобіль</label>
-      <select id="invoiceCar" required></select>
-      <label for="invoiceParts">Запчастини (утримуй Ctrl або Cmd для мультивибору)</label>
-      <select id="invoiceParts" multiple size="5"></select>
-      <label for="invoiceWork">Роботи</label>
-      <textarea id="invoiceWork" placeholder="Опис робіт" required></textarea>
-      <label for="invoiceWorkPrice">Вартість робіт, грн</label>
-      <input type="number" id="invoiceWorkPrice" min="0" step="0.01" value="0" autocomplete="off" />
-      <button type="submit" class="submit">Додати рахунок</button>
-    </form>
-    <table>
-      <thead>
-        <tr>
-          <th>Клієнт</th>
-          <th>Автомобіль</th>
-          <th>Запчастини</th>
-          <th>Роботи</th>
-          <th>Сума, грн</th>
-          <th>PDF</th>
-          <th>Видалити</th>
-        </tr>
-      </thead>
-      <tbody id="invoiceList"></tbody>
-    </table>
-  </section>
-
-  <section id="acts" role="tabpanel" aria-label="Акти">
-    <div class="actions">
-      <button id="importActsBtn" type="button">Імпорт актів</button>
-      <button id="exportActsBtn" type="button">Експорт актів</button>
-    </div>
-    <form id="actForm">
-      <input type="text" id="actClient" placeholder="Ім'я клієнта" required list="clientNames" autocomplete="off" />
-      <input type="text" id="actCar" placeholder="Авто" required autocomplete="off"/>
-      <textarea id="actWork" placeholder="Опис робіт" required></textarea>
-      <button type="submit" class="submit">Додати акт</button>
-    </form>
-    <table>
-      <thead>
-        <tr><th>Клієнт</th><th>Авто</th><th>Роботи</th><th>Видалити</th></tr>
-      </thead>
-      <tbody id="actList"></tbody>
-    </table>
+  <section id="invoices">
+    <h2>Рахунки</h2>
+    <p>Це буде пізніше :)</p>
   </section>
 </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script>
-  const { jsPDF } = window.jspdf;
-
-  // Навігація по вкладках
+  // Вкладки
   const tabs = document.querySelectorAll('nav button.tab');
   const sections = document.querySelectorAll('main section');
 
@@ -310,122 +103,114 @@
     });
   });
 
-  // Дані з localStorage або порожні масиви
+  // Дані у localStorage
   let clients = JSON.parse(localStorage.getItem('clients') || '[]');
   let cars = JSON.parse(localStorage.getItem('cars') || '[]');
   let parts = JSON.parse(localStorage.getItem('parts') || '[]');
-  let invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
-  let acts = JSON.parse(localStorage.getItem('acts') || '[]');
 
-  // Оновлення списку клієнтів для datalist
-  function updateClientDatalist(){
-    const datalist = document.getElementById('clientNames');
-    datalist.innerHTML = '';
-    clients.forEach(c => {
-      const option = document.createElement('option');
-      option.value = c.name;
-      datalist.appendChild(option);
-    });
-  }
-
-  // Відмалювати списки і таблиці
-  function renderClients(){
+  // Функції відмалювання
+  function renderClients() {
     const tbody = document.getElementById('clientList');
     tbody.innerHTML = '';
-    clients.forEach((c,i) => {
+    clients.forEach((c, i) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${c.name}</td><td>${c.phone || ''}</td><td><button class="delete" data-type="client" data-index="${i}" type="button">×</button></td>`;
+      tr.innerHTML = `<td>${c.name}</td><td>${c.phone || ''}</td><td><button class="delete" data-index="${i}">×</button></td>`;
       tbody.appendChild(tr);
     });
-    updateClientDatalist();
+    // Кнопки видалення
+    tbody.querySelectorAll('button.delete').forEach(btn => {
+      btn.onclick = e => {
+        clients.splice(e.target.dataset.index,1);
+        saveClients();
+        renderClients();
+      }
+    });
   }
-
-  function renderCars(){
+  function renderCars() {
     const tbody = document.getElementById('carList');
     tbody.innerHTML = '';
     cars.forEach((c,i) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${c.owner}</td><td>${c.model}</td><td>${c.vin || ''}</td><td><button class="delete" data-type="car" data-index="${i}" type="button">×</button></td>`;
+      tr.innerHTML = `<td>${c.owner}</td><td>${c.model}</td><td>${c.vin || ''}</td><td><button class="delete" data-index="${i}">×</button></td>`;
       tbody.appendChild(tr);
     });
-
-    const sel = document.getElementById('invoiceCar');
-    sel.innerHTML = '';
-    cars.forEach((c,i) => {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = `${c.model} (власник: ${c.owner})`;
-      sel.appendChild(option);
+    tbody.querySelectorAll('button.delete').forEach(btn => {
+      btn.onclick = e => {
+        cars.splice(e.target.dataset.index,1);
+        saveCars();
+        renderCars();
+      }
     });
   }
-
-  function renderParts(){
+  function renderParts() {
     const tbody = document.getElementById('partList');
     tbody.innerHTML = '';
     parts.forEach((p,i) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${p.name}</td><td>${p.price.toFixed(2)}</td><td><button class="delete" data-type="part" data-index="${i}" type="button">×</button></td>`;
+      tr.innerHTML = `<td>${p.name}</td><td>${p.price.toFixed(2)}</td><td><button class="delete" data-index="${i}">×</button></td>`;
       tbody.appendChild(tr);
     });
-
-    const sel = document.getElementById('invoiceParts');
-    sel.innerHTML = '';
-    parts.forEach((p,i) => {
-      const option = document.createElement('option');
-      option.value = i;
-      option.textContent = `${p.name} — ${p.price.toFixed(2)} грн`;
-      sel.appendChild(option);
-    });
-  }
-
-  function renderInvoices(){
-    const tbody = document.getElementById('invoiceList');
-    tbody.innerHTML = '';
-    invoices.forEach((inv,i) => {
-      const selectedParts = inv.parts.map(idx => parts[idx]?.name || '').filter(n => n).join(', ');
-      const partsSum = inv.parts.reduce((sum, idx) => sum + (parts[idx]?.price || 0), 0);
-      const workPrice = parseFloat(inv.workPrice) || 0;
-      const totalPrice = partsSum + workPrice;
-      const workText = inv.work || '';
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${inv.client}</td>
-        <td>${cars[inv.car]?.model || ''}</td>
-        <td>${selectedParts}</td>
-        <td>${workText}</td>
-        <td>${totalPrice.toFixed(2)}</td>
-        <td>
-          <button class="pdf-btn" data-index="${i}" type="button">PDF</button>
-        </td>
-        <td>
-          <button class="delete" data-type="invoice" data-index="${i}" type="button">×</button>
-        </td>`;
-      tbody.appendChild(tr);
-    });
-  }
-
-  function renderActs(){
-    const tbody = document.getElementById('actList');
-    tbody.innerHTML = '';
-    acts.forEach((act,i) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${act.client}</td><td>${act.car}</td><td>${act.work}</td><td><button class="delete" data-type="act" data-index="${i}" type="button">×</button></td>`;
-      tbody.appendChild(tr);
+    tbody.querySelectorAll('button.delete').forEach(btn => {
+      btn.onclick = e => {
+        parts.splice(e.target.dataset.index,1);
+        saveParts();
+        renderParts();
+      }
     });
   }
 
   // Збереження в localStorage
-  function saveData(){
+  function saveClients() {
     localStorage.setItem('clients', JSON.stringify(clients));
+  }
+  function saveCars() {
     localStorage.setItem('cars', JSON.stringify(cars));
+  }
+  function saveParts() {
     localStorage.setItem('parts', JSON.stringify(parts));
-    localStorage.setItem('invoices', JSON.stringify(invoices));
-    localStorage.setItem('acts', JSON.stringify(acts));
   }
 
-  // Обробники форм додавання
-
+  // Обробка форм
   document.getElementById('clientForm').addEventListener('submit', e => {
     e.preventDefault();
     const name = document.getElementById('clientName').value.trim();
-    const phone = document.getElementById('client
+    if(!name) return alert('Введіть ім\'я клієнта');
+    const phone = document.getElementById('clientPhone').value.trim();
+    clients.push({name, phone});
+    saveClients();
+    renderClients();
+    e.target.reset();
+  });
+
+  document.getElementById('carForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const owner = document.getElementById('carOwner').value.trim();
+    const model = document.getElementById('carModel').value.trim();
+    const vin = document.getElementById('carVIN').value.trim();
+    if(!owner || !model) return alert('Введіть власника і модель авто');
+    cars.push({owner, model, vin});
+    saveCars();
+    renderCars();
+    e.target.reset();
+  });
+
+  document.getElementById('partForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('partName').value.trim();
+    const price = parseFloat(document.getElementById('partPrice').value);
+    if(!name || isNaN(price)) return alert('Введіть коректні назву і ціну');
+    parts.push({name, price});
+    saveParts();
+    renderParts();
+    e.target.reset();
+  });
+
+  // Початковий рендер
+  renderClients();
+  renderCars();
+  renderParts();
+
+</script>
+
+</body>
+</html>
