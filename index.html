@@ -1,122 +1,311 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8" />
-  <title>Додаток перевізника</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 30px auto;
-      padding: 0 15px;
-    }
-    h1 {
-      text-align: center;
-      color: #2c3e50;
-    }
-    form {
-      margin-bottom: 20px;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      box-sizing: border-box;
-    }
-    button {
-      padding: 10px 15px;
-      background-color: #3498db;
-      border: none;
-      color: white;
-      cursor: pointer;
-      border-radius: 3px;
-    }
-    button:hover {
-      background-color: #2980b9;
-    }
-    ul {
-      list-style-type: none;
-      padding-left: 0;
-    }
-    li {
-      background: #ecf0f1;
-      padding: 15px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .completed {
-      text-decoration: line-through;
-      color: #27ae60;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Міні база даних посилок</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 700px;
+    margin: auto;
+    padding: 1rem;
+    background: #f7f7f7;
+    color: #111;
+  }
+  h1 {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  form > div {
+    margin-bottom: 0.8rem;
+  }
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 0.3rem;
+  }
+  input[type="text"],
+  input[type="number"],
+  input[type="tel"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.5rem;
+    font-size: 1rem;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  textarea {
+    resize: vertical;
+  }
+  button {
+    background: #000;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.2rem;
+    cursor: pointer;
+    border-radius: 5px;
+    font-weight: bold;
+  }
+  button:hover {
+    background: #333;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+  }
+  th {
+    background: #eee;
+  }
+  td button.delete-btn {
+    background: #c00;
+    padding: 0.3rem 0.6rem;
+    border-radius: 3px;
+    color: white;
+    cursor: pointer;
+    border: none;
+  }
+  td button.delete-btn:hover {
+    background: #900;
+  }
+  .volume-weights div {
+    margin-bottom: 0.4rem;
+  }
+  .actions {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+  }
+  .actions button {
+    flex: 1;
+  }
+</style>
 </head>
 <body>
 
-  <h1>Додаток перевізника</h1>
+<h1>Міні база даних посилок</h1>
 
-  <form id="orderForm">
-    <input type="text" id="from" placeholder="Адреса відправлення" required />
-    <input type="text" id="to" placeholder="Адреса доставки" required />
-    <button type="submit">Додати замовлення</button>
-  </form>
+<form id="parcelForm">
+  <div>
+    <label for="trackingNumber">№ посилки *</label>
+    <input type="text" id="trackingNumber" required />
+  </div>
+  <div>
+    <label for="weight">Вага (кг) *</label>
+    <input type="number" id="weight" min="0" step="0.01" required />
+  </div>
+  <div>
+    <label for="placesCount">Кількість місць *</label>
+    <input type="number" id="placesCount" min="1" step="1" required />
+  </div>
+  <div class="volume-weight-section">
+    <label>Об’ємна вага по місцях *</label>
+    <div class="volume-weights"></div>
+  </div>
+  <div>
+    <label for="branch">Відділення Нової Пошти *</label>
+    <input type="text" id="branch" required />
+  </div>
+  <div>
+    <label for="phone">Номер телефону отримувача *</label>
+    <input type="tel" id="phone" required pattern="[0-9+ -]{5,}" placeholder="+380..." />
+  </div>
+  <div>
+    <label for="city">Місто *</label>
+    <input type="text" id="city" required />
+  </div>
+  <div>
+    <label for="description">Опис</label>
+    <textarea id="description" rows="3"></textarea>
+  </div>
+  <button type="submit">Додати посилку</button>
+</form>
 
-  <ul id="ordersList"></ul>
+<div class="actions">
+  <button id="exportBtn">Експорт даних (JSON)</button>
+  <button id="importBtn">Імпорт даних (JSON)</button>
+  <input type="file" id="importFile" style="display:none" accept=".json" />
+</div>
 
-  <script>
-    const orderForm = document.getElementById('orderForm');
-    const ordersList = document.getElementById('ordersList');
+<table>
+  <thead>
+    <tr>
+      <th>№ посилки</th>
+      <th>Вага (кг)</th>
+      <th>Місць</th>
+      <th>Обʼємна вага (кг)</th>
+      <th>Відділення</th>
+      <th>Телефон</th>
+      <th>Місто</th>
+      <th>Опис</th>
+      <th>Видалити</th>
+    </tr>
+  </thead>
+  <tbody id="parcelList"></tbody>
+</table>
 
-    let orders = [];
+<script>
+  const parcelForm = document.getElementById('parcelForm');
+  const placesCountInput = document.getElementById('placesCount');
+  const volumeWeightsContainer = document.querySelector('.volume-weights');
+  const parcelListTbody = document.getElementById('parcelList');
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const importFileInput = document.getElementById('importFile');
 
-    function renderOrders() {
-      ordersList.innerHTML = '';
+  let parcels = JSON.parse(localStorage.getItem('parcels') || '[]');
 
-      orders.forEach((order, index) => {
-        const li = document.createElement('li');
-        li.className = order.completed ? 'completed' : '';
-
-        li.innerHTML = `
-          <div>
-            <strong>Від:</strong> ${order.from}<br />
-            <strong>До:</strong> ${order.to}<br />
-            <strong>Статус:</strong> ${order.completed ? 'Виконано' : 'В процесі'}
-          </div>
-          <button onclick="toggleCompleted(${index})">
-            ${order.completed ? 'Позначити як не виконано' : 'Позначити як виконано'}
-          </button>
-        `;
-
-        ordersList.appendChild(li);
-      });
+  function renderVolumeWeightInputs(count) {
+    volumeWeightsContainer.innerHTML = '';
+    for(let i = 1; i <= count; i++) {
+      const div = document.createElement('div');
+      div.innerHTML = `<label>Місце ${i} вага (кг): <input type="number" step="0.01" min="0" required class="volumeWeightInput" data-index="${i-1}"></label>`;
+      volumeWeightsContainer.appendChild(div);
     }
+  }
 
-    function toggleCompleted(index) {
-      orders[index].completed = !orders[index].completed;
-      renderOrders();
-    }
+  placesCountInput.addEventListener('input', () => {
+    let count = parseInt(placesCountInput.value) || 0;
+    if(count < 1) count = 1;
+    renderVolumeWeightInputs(count);
+  });
 
-    orderForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const from = document.getElementById('from').value.trim();
-      const to = document.getElementById('to').value.trim();
+  function saveParcels() {
+    localStorage.setItem('parcels', JSON.stringify(parcels));
+  }
 
-      if (!from || !to) {
-        alert('Будь ласка, заповніть обидва поля');
+  function renderParcels() {
+    parcelListTbody.innerHTML = '';
+    parcels.forEach((p, idx) => {
+      const volWeightsText = p.volumeWeights.map(w => w.toFixed(2)).join(', ');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${p.trackingNumber}</td>
+        <td>${p.weight.toFixed(2)}</td>
+        <td>${p.placesCount}</td>
+        <td>${volWeightsText}</td>
+        <td>${p.branch}</td>
+        <td>${p.phone}</td>
+        <td>${p.city}</td>
+        <td>${p.description || ''}</td>
+        <td><button class="delete-btn" data-idx="${idx}">×</button></td>
+      `;
+      parcelListTbody.appendChild(tr);
+    });
+  }
+
+  parcelForm.addEventListener('submit', e => {
+    e.preventDefault();
+
+    const trackingNumber = document.getElementById('trackingNumber').value.trim();
+    const weight = parseFloat(document.getElementById('weight').value);
+    const placesCount = parseInt(placesCountInput.value);
+    const branch = document.getElementById('branch').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const description = document.getElementById('description').value.trim();
+
+    // Зібрати обʼємні ваги
+    const volumeWeightInputs = volumeWeightsContainer.querySelectorAll('.volumeWeightInput');
+    let volumeWeights = [];
+    for(let input of volumeWeightInputs) {
+      const val = parseFloat(input.value);
+      if (isNaN(val) || val < 0) {
+        alert('Вкажіть коректну обʼємну вагу для усіх місць');
         return;
       }
+      volumeWeights.push(val);
+    }
+    if(volumeWeights.length !== placesCount) {
+      alert('Кількість обʼємних ваг не співпадає з кількістю місць');
+      return;
+    }
 
-      orders.push({ from, to, completed: false });
+    // Перевірка унікальності № посилки
+    if(parcels.some(p => p.trackingNumber === trackingNumber)) {
+      alert('Посилка з таким номером вже існує');
+      return;
+    }
 
-      orderForm.reset();
-      renderOrders();
-    });
+    const parcel = {
+      trackingNumber,
+      weight,
+      placesCount,
+      volumeWeights,
+      branch,
+      phone,
+      city,
+      description,
+    };
 
-    // Для доступності функції у HTML кнопках
-    window.toggleCompleted = toggleCompleted;
-  </script>
+    parcels.push(parcel);
+    saveParcels();
+    renderParcels();
+    parcelForm.reset();
+    renderVolumeWeightInputs(1);
+  });
+
+  parcelListTbody.addEventListener('click', e => {
+    if(e.target.classList.contains('delete-btn')) {
+      const idx = parseInt(e.target.dataset.idx);
+      if (confirm('Видалити цю посилку?')) {
+        parcels.splice(idx, 1);
+        saveParcels();
+        renderParcels();
+      }
+    }
+  });
+
+  exportBtn.addEventListener('click', () => {
+    const dataStr = JSON.stringify(parcels, null, 2);
+    const blob = new Blob([dataStr], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'parcels.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  importBtn.addEventListener('click', () => {
+    importFileInput.click();
+  });
+
+  importFileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const imported = JSON.parse(event.target.result);
+        if (Array.isArray(imported)) {
+          parcels = imported;
+          saveParcels();
+          renderParcels();
+          alert('Дані імпортовані успішно!');
+        } else {
+          alert('Неправильний формат файлу');
+        }
+      } catch {
+        alert('Помилка при читанні файлу');
+      }
+    };
+    reader.readAsText(file);
+    importFileInput.value = '';
+  });
+
+  // Початково
+  renderVolumeWeightInputs(1);
+  renderParcels();
+</script>
 
 </body>
 </html>
