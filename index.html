@@ -3,18 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Посилки</title>
+  <title>Нова посилка</title>
   <style>
     body {
       font-family: sans-serif;
       padding: 1rem;
       background: #f0f0f0;
     }
-    form, .parcel {
+    form {
       background: white;
-      border-radius: 6px;
       padding: 1rem;
-      margin-bottom: 1rem;
+      border-radius: 6px;
       box-shadow: 0 0 10px rgba(0,0,0,0.05);
     }
     label {
@@ -40,6 +39,10 @@
     }
     .volume input {
       margin-top: 5px;
+    }
+    .linkBtn {
+      background: #28a745;
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -77,15 +80,12 @@
   <button type="submit">Додати</button>
 </form>
 
-<div id="parcelList"></div>
+<button class="linkBtn" onclick="window.open('list.html', '_blank')">📦 Переглянути всі посилки</button>
 
 <script>
   const form = document.getElementById('parcelForm');
   const volumeFields = document.getElementById('volumeFields');
   const placesInput = document.getElementById('places');
-  const parcelList = document.getElementById('parcelList');
-
-  let parcels = JSON.parse(localStorage.getItem('parcels') || '[]');
 
   function renderVolumeInputs() {
     const count = parseInt(placesInput.value);
@@ -104,26 +104,6 @@
   }
 
   placesInput.addEventListener('input', renderVolumeInputs);
-
-  function renderParcels() {
-    parcelList.innerHTML = '';
-    parcels.forEach(p => {
-      const div = document.createElement('div');
-      div.className = 'parcel';
-      div.innerHTML = `
-        <b>№:</b> ${p.number}<br>
-        <b>Вага:</b> ${p.weight} кг<br>
-        <b>Кількість місць:</b> ${p.places}<br>
-        <b>Обʼємна вага:</b> ${p.volume.join(', ')}<br>
-        <b>Місто:</b> ${p.city}<br>
-        <b>Відділення:</b> ${p.branch}<br>
-        <b>Телефон:</b> ${p.phone}<br>
-        <b>Ціна:</b> €${p.price}<br>
-        <b>Опис:</b> ${p.desc || '-'}
-      `;
-      parcelList.appendChild(div);
-    });
-  }
 
   form.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -146,14 +126,13 @@
       desc: document.getElementById('desc').value.trim()
     };
 
+    let parcels = JSON.parse(localStorage.getItem('parcels') || '[]');
     parcels.push(data);
     localStorage.setItem('parcels', JSON.stringify(parcels));
-    renderParcels();
     form.reset();
     volumeFields.innerHTML = '';
+    alert('Посилку додано!');
   });
-
-  renderParcels();
 </script>
 
 </body>
