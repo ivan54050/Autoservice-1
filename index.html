@@ -2,7 +2,7 @@
 <html lang="uk">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
 <title>Автосервіс Онлайн</title>
 
 <style>
@@ -14,10 +14,10 @@
     color: #222;
   }
   header {
-    background: #2e86de;
+    background: #000000;
     color: white;
-    padding: 1.2rem 2rem;
-    font-size: 1.8rem;
+    padding: 1rem 1rem;
+    font-size: 1.6rem;
     font-weight: 600;
     text-align: center;
   }
@@ -25,26 +25,28 @@
     display: flex;
     background: white;
     box-shadow: 0 2px 5px rgb(0 0 0 / 0.1);
+    overflow-x: auto;
   }
   nav button {
-    flex: 1;
+    flex: 1 0 auto;
     border: none;
     background: transparent;
-    padding: 1rem;
+    padding: 0.8rem 1rem;
     font-weight: 600;
-    font-size: 1.1rem;
+    font-size: 1rem;
     cursor: pointer;
-    color: #666;
+    color: #444;
     border-bottom: 3px solid transparent;
     transition: all 0.3s ease;
+    white-space: nowrap;
   }
   nav button.active {
-    color: #2e86de;
-    border-bottom: 3px solid #2e86de;
+    color: #000000;
+    border-bottom: 3px solid #000000;
   }
   main {
-    padding: 2rem;
-    max-width: 900px;
+    padding: 1rem 1rem 2rem 1rem;
+    max-width: 1000px;
     margin: auto;
   }
   section {
@@ -55,38 +57,40 @@
   }
   form {
     display: grid;
-    gap: 1rem;
-    margin-bottom: 2rem;
+    gap: 0.8rem;
+    margin-bottom: 1.5rem;
   }
   input, select, textarea {
-    padding: 0.7rem 1rem;
+    padding: 0.6rem 0.9rem;
     font-size: 1rem;
     border: 1px solid #ddd;
     border-radius: 6px;
     background: white;
     color: #222;
     resize: vertical;
+    min-width: 0;
   }
   button.submit {
-    background: #2e86de;
+    background: #000000;
     color: white;
     font-weight: 700;
     border: none;
-    padding: 0.7rem 1.5rem;
+    padding: 0.7rem 1rem;
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s ease;
     justify-self: start;
   }
   button.submit:hover {
-    background: #1b4f72;
+    background: #333333;
   }
   table {
     width: 100%;
     border-collapse: collapse;
+    font-size: 0.9rem;
   }
   th, td {
-    padding: 0.8rem 1rem;
+    padding: 0.5rem 0.7rem;
     border-bottom: 1px solid #eee;
     text-align: left;
     vertical-align: middle;
@@ -100,7 +104,7 @@
     background: #e74c3c;
     color: white;
     border: none;
-    padding: 0.3rem 0.7rem;
+    padding: 0.25rem 0.6rem;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.85rem;
@@ -113,7 +117,7 @@
     background: #28a745;
     color: white;
     border: none;
-    padding: 0.3rem 0.7rem;
+    padding: 0.25rem 0.6rem;
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.85rem;
@@ -124,24 +128,54 @@
     background: #1e7e34;
   }
   .actions {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
   }
   .actions button {
-    background: #2e86de;
+    background: #000000;
     color: white;
     border: none;
-    padding: 0.6rem 1.2rem;
-    margin-right: 0.7rem;
+    padding: 0.5rem 1rem;
     border-radius: 6px;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    flex: 1 0 auto;
+    min-width: 120px;
   }
   .actions button:hover {
-    background: #1b4f72;
+    background: #333333;
   }
   label {
     font-weight: 600;
+  }
+  /* Адаптивність */
+  @media (max-width: 600px) {
+    nav button {
+      font-size: 0.9rem;
+      padding: 0.6rem 0.8rem;
+    }
+    input, select, textarea {
+      font-size: 1rem;
+    }
+    table {
+      font-size: 0.85rem;
+    }
+    header {
+      font-size: 1.4rem;
+      padding: 1rem 0.5rem;
+    }
+    main {
+      padding: 1rem 0.5rem 2rem 0.5rem;
+    }
+    .actions {
+      flex-direction: column;
+    }
+    .actions button {
+      min-width: 100%;
+    }
   }
 </style>
 
@@ -151,23 +185,23 @@
 <header>Автосервіс Онлайн</header>
 
 <nav>
-  <button class="tab active" data-tab="clients">Клієнти</button>
-  <button class="tab" data-tab="cars">Автомобілі</button>
-  <button class="tab" data-tab="parts">Запчастини</button>
-  <button class="tab" data-tab="invoices">Рахунки</button>
-  <button class="tab" data-tab="acts">Акти</button>
+  <button class="tab active" data-tab="clients" type="button">Клієнти</button>
+  <button class="tab" data-tab="cars" type="button">Автомобілі</button>
+  <button class="tab" data-tab="parts" type="button">Запчастини</button>
+  <button class="tab" data-tab="invoices" type="button">Рахунки</button>
+  <button class="tab" data-tab="acts" type="button">Акти</button>
 </nav>
 
 <main>
   <!-- Клієнти -->
-  <section id="clients" class="active">
+  <section id="clients" class="active" role="tabpanel" aria-label="Клієнти">
     <div class="actions">
-      <button id="importClientsBtn">Імпорт клієнтів</button>
-      <button id="exportClientsBtn">Експорт клієнтів</button>
+      <button id="importClientsBtn" type="button">Імпорт клієнтів</button>
+      <button id="exportClientsBtn" type="button">Експорт клієнтів</button>
     </div>
     <form id="clientForm">
-      <input type="text" id="clientName" placeholder="Ім'я клієнта" required />
-      <input type="tel" id="clientPhone" placeholder="Телефон" />
+      <input type="text" id="clientName" placeholder="Ім'я клієнта" required autocomplete="off" />
+      <input type="tel" id="clientPhone" placeholder="Телефон" autocomplete="off" />
       <button type="submit" class="submit">Додати клієнта</button>
     </form>
     <table>
@@ -177,15 +211,15 @@
   </section>
 
   <!-- Автомобілі -->
-  <section id="cars">
+  <section id="cars" role="tabpanel" aria-label="Автомобілі">
     <div class="actions">
-      <button id="importCarsBtn">Імпорт авто</button>
-      <button id="exportCarsBtn">Експорт авто</button>
+      <button id="importCarsBtn" type="button">Імпорт авто</button>
+      <button id="exportCarsBtn" type="button">Експорт авто</button>
     </div>
     <form id="carForm">
-      <input type="text" id="carClient" placeholder="Власник (клієнт)" required list="clientNames"/>
-      <input type="text" id="carModel" placeholder="Модель автомобіля" required />
-      <input type="text" id="carVIN" placeholder="VIN (опційно)" />
+      <input type="text" id="carClient" placeholder="Власник (клієнт)" required list="clientNames" autocomplete="off"/>
+      <input type="text" id="carModel" placeholder="Модель автомобіля" required autocomplete="off"/>
+      <input type="text" id="carVIN" placeholder="VIN (опційно)" autocomplete="off"/>
       <button type="submit" class="submit">Додати автомобіль</button>
     </form>
     <datalist id="clientNames"></datalist>
@@ -196,14 +230,14 @@
   </section>
 
   <!-- Запчастини -->
-  <section id="parts">
+  <section id="parts" role="tabpanel" aria-label="Запчастини">
     <div class="actions">
-      <button id="importPartsBtn">Імпорт запчастин</button>
-      <button id="exportPartsBtn">Експорт запчастин</button>
+      <button id="importPartsBtn" type="button">Імпорт запчастин</button>
+      <button id="exportPartsBtn" type="button">Експорт запчастин</button>
     </div>
     <form id="partForm">
-      <input type="text" id="partName" placeholder="Назва запчастини" required />
-      <input type="number" id="partPrice" placeholder="Ціна, грн" required min="0" step="0.01"/>
+      <input type="text" id="partName" placeholder="Назва запчастини" required autocomplete="off" />
+      <input type="number" id="partPrice" placeholder="Ціна, грн" required min="0" step="0.01" autocomplete="off" />
       <button type="submit" class="submit">Додати запчастину</button>
     </form>
     <table>
@@ -213,20 +247,22 @@
   </section>
 
   <!-- Рахунки -->
-  <section id="invoices">
+  <section id="invoices" role="tabpanel" aria-label="Рахунки">
     <div class="actions">
-      <button id="importInvoicesBtn">Імпорт рахунків</button>
-      <button id="exportInvoicesBtn">Експорт рахунків</button>
+      <button id="importInvoicesBtn" type="button">Імпорт рахунків</button>
+      <button id="exportInvoicesBtn" type="button">Експорт рахунків</button>
     </div>
     <form id="invoiceForm">
       <label for="invoiceClient">Клієнт</label>
-      <input type="text" id="invoiceClient" required list="clientNames" />
+      <input type="text" id="invoiceClient" required list="clientNames" autocomplete="off" />
       <label for="invoiceCar">Автомобіль</label>
       <select id="invoiceCar" required></select>
       <label for="invoiceParts">Запчастини (утримуй Ctrl або Cmd для мультивибору)</label>
       <select id="invoiceParts" multiple size="5"></select>
       <label for="invoiceWork">Роботи</label>
       <textarea id="invoiceWork" placeholder="Опис робіт" required></textarea>
+      <label for="invoiceWorkPrice">Вартість робіт, грн</label>
+      <input type="number" id="invoiceWorkPrice" min="0" step="0.01" value="0" autocomplete="off" />
       <button type="submit" class="submit">Додати рахунок</button>
     </form>
     <table>
@@ -246,14 +282,14 @@
   </section>
 
   <!-- Акти -->
-  <section id="acts">
+  <section id="acts" role="tabpanel" aria-label="Акти">
     <div class="actions">
-      <button id="importActsBtn">Імпорт актів</button>
-      <button id="exportActsBtn">Експорт актів</button>
+      <button id="importActsBtn" type="button">Імпорт актів</button>
+      <button id="exportActsBtn" type="button">Експорт актів</button>
     </div>
     <form id="actForm">
-      <input type="text" id="actClient" placeholder="Ім'я клієнта" required list="clientNames" />
-      <input type="text" id="actCar" placeholder="Авто" required />
+      <input type="text" id="actClient" placeholder="Ім'я клієнта" required list="clientNames" autocomplete="off" />
+      <input type="text" id="actCar" placeholder="Авто" required autocomplete="off"/>
       <textarea id="actWork" placeholder="Опис робіт" required></textarea>
       <button type="submit" class="submit">Додати акт</button>
     </form>
@@ -266,7 +302,6 @@
   </section>
 </main>
 
-<!-- Скрипти -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script>
@@ -308,7 +343,7 @@
     tbody.innerHTML = '';
     clients.forEach((c,i) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${c.name}</td><td>${c.phone || ''}</td><td><button class="delete" data-type="client" data-index="${i}">×</button></td>`;
+      tr.innerHTML = `<td>${c.name}</td><td>${c.phone || ''}</td><td><button class="delete" data-type="client" data-index="${i}" type="button">×</button></td>`;
       tbody.appendChild(tr);
     });
     updateClientDatalist();
@@ -319,7 +354,7 @@
     tbody.innerHTML = '';
     cars.forEach((c,i) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${c.owner}</td><td>${c.model}</td><td>${c.vin || ''}</td><td><button class="delete" data-type="car" data-index="${i}">×</button></td>`;
+      tr.innerHTML = `<td>${c.owner}</td><td>${c.model}</td><td>${c.vin || ''}</td><td><button class="delete" data-type="car" data-index="${i}" type="button">×</button></td>`;
       tbody.appendChild(tr);
     });
 
@@ -339,7 +374,7 @@
     tbody.innerHTML = '';
     parts.forEach((p,i) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${p.name}</td><td>${p.price}</td><td><button class="delete" data-type="part" data-index="${i}">×</button></td>`;
+      tr.innerHTML = `<td>${p.name}</td><td>${p.price.toFixed(2)}</td><td><button class="delete" data-type="part" data-index="${i}" type="button">×</button></td>`;
       tbody.appendChild(tr);
     });
 
@@ -349,7 +384,7 @@
     parts.forEach((p,i) => {
       const option = document.createElement('option');
       option.value = i;
-      option.textContent = `${p.name} — ${p.price} грн`;
+      option.textContent = `${p.name} — ${p.price.toFixed(2)} грн`;
       sel.appendChild(option);
     });
   }
@@ -359,7 +394,9 @@
     tbody.innerHTML = '';
     invoices.forEach((inv,i) => {
       const selectedParts = inv.parts.map(idx => parts[idx]?.name || '').filter(n => n).join(', ');
-      const totalPrice = inv.parts.reduce((sum, idx) => sum + (parts[idx]?.price || 0), 0) + parseFloat(inv.workPrice || 0);
+      const partsSum = inv.parts.reduce((sum, idx) => sum + (parts[idx]?.price || 0), 0);
+      const workPrice = parseFloat(inv.workPrice) || 0;
+      const totalPrice = partsSum + workPrice;
       const workText = inv.work || '';
       const tr = document.createElement('tr');
       tr.innerHTML = `
@@ -369,8 +406,8 @@
         <td>${workText}</td>
         <td>${totalPrice.toFixed(2)}</td>
         <td>
-          <button class="pdf-btn" data-index="${i}">PDF</button>
-          <button class="delete" data-type="invoice" data-index="${i}">×</button>
+          <button class="pdf-btn" data-index="${i}" type="button">PDF</button>
+          <button class="delete" data-type="invoice" data-index="${i}" type="button">×</button>
         </td>`;
       tbody.appendChild(tr);
     });
@@ -381,7 +418,7 @@
     tbody.innerHTML = '';
     acts.forEach((act,i) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${act.client}</td><td>${act.car}</td><td>${act.work}</td><td><button class="delete" data-type="act" data-index="${i}">×</button></td>`;
+      tr.innerHTML = `<td>${act.client}</td><td>${act.car}</td><td>${act.work}</td><td><button class="delete" data-type="act" data-index="${i}" type="button">×</button></td>`;
       tbody.appendChild(tr);
     });
   }
@@ -399,38 +436,3 @@
     renderClients();
     e.target.reset();
   });
-
-  // Автомобілі
-  document.getElementById('carForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const owner = document.getElementById('carClient').value.trim();
-    const model = document.getElementById('carModel').value.trim();
-    const vin = document.getElementById('carVIN').value.trim();
-    if(!owner || !model) return alert('Вкажіть власника та модель авто');
-    // Перевірка, чи існує клієнт
-    if(!clients.find(c => c.name === owner)) {
-      alert('Клієнта з таким ім\'ям не знайдено. Спочатку додайте клієнта.');
-      return;
-    }
-    cars.push({owner, model, vin});
-    localStorage.setItem('cars', JSON.stringify(cars));
-    renderCars();
-    e.target.reset();
-  });
-
-  // Запчастини
-  document.getElementById('partForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const name = document.getElementById('partName').value.trim();
-    const price = parseFloat(document.getElementById('partPrice').value);
-    if(!name || isNaN(price)) return alert('Вкажіть назву та ціну запчастини');
-    parts.push({name, price});
-    localStorage.setItem('parts', JSON.stringify(parts));
-    renderParts();
-    e.target.reset();
-  });
-
-  // Рахунки
-  document.getElementById('invoiceForm').addEventListener('submit', e => {
-    e.preventDefault();
-   
