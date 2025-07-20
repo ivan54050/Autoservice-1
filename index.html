@@ -1,457 +1,161 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Міні база посилок з обʼємною вагою</title>
-<style>
-  body {
-    font-family: Arial, sans-serif;
-    max-width: 960px;
-    margin: 10px auto;
-    padding: 0 10px 40px;
-    background: #fafafa;
-    color: #222;
-  }
-  h1 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  form {
-    background: #fff;
-    padding: 15px 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.05);
-    margin-bottom: 20px;
-  }
-  label {
-    display: block;
-    margin-top: 12px;
-    font-weight: 600;
-  }
-  input, textarea {
-    width: 100%;
-    padding: 8px 10px;
-    margin-top: 6px;
-    box-sizing: border-box;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-    transition: border-color 0.3s;
-  }
-  input:focus, textarea:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-  button {
-    margin-top: 20px;
-    padding: 12px 25px;
-    cursor: pointer;
-    border: none;
-    background: #007bff;
-    color: white;
-    font-weight: 700;
-    font-size: 1.1rem;
-    border-radius: 6px;
-    width: 100%;
-    max-width: 300px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    transition: background 0.3s;
-  }
-  button:hover {
-    background: #0056b3;
-  }
-  .actions button {
-    margin-right: 5px;
-    padding: 7px 12px;
-    font-size: 0.9rem;
-    border-radius: 5px;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s;
-    color: #fff;
-  }
-  .actions button.editBtn {
-    background: #28a745;
-  }
-  .actions button.editBtn:hover {
-    background: #1e7e34;
-  }
-  .actions button.deleteBtn {
-    background: #e74c3c;
-  }
-  .actions button.deleteBtn:hover {
-    background: #c82333;
-  }
-  .actions button.pdfBtn {
-    background: #17a2b8;
-  }
-  .actions button.pdfBtn:hover {
-    background: #117a8b;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 10px;
-    background: #fff;
-    box-shadow: 0 0 6px rgba(0,0,0,0.05);
-    border-radius: 8px;
-    overflow: hidden;
-    font-size: 0.9rem;
-  }
-  th, td {
-    border-bottom: 1px solid #ddd;
-    padding: 8px 10px;
-    text-align: left;
-  }
-  th {
-    background: #007bff;
-    color: white;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    font-weight: 600;
-  }
-  tbody tr:hover {
-    background: #f1faff;
-  }
-  @media (max-width: 768px) {
-    table, thead, tbody, th, td, tr {
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Мобільна база посилок</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #f9f9f9;
+    }
+    h1 {
+      text-align: center;
+      font-size: 1.4rem;
+    }
+    label {
       display: block;
+      margin-top: 1rem;
+      font-weight: bold;
     }
-    thead tr {
-      display: none;
-    }
-    tbody tr {
-      margin-bottom: 20px;
-      background: #fff;
-      border-radius: 8px;
-      padding: 10px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.05);
-    }
-    tbody td {
-      padding-left: 50%;
-      position: relative;
-      border: none;
-      border-bottom: 1px solid #eee;
-    }
-    tbody td:last-child {
-      border-bottom: none;
-    }
-    tbody td::before {
-      position: absolute;
-      top: 8px;
-      left: 10px;
-      width: 45%;
-      white-space: nowrap;
-      font-weight: 600;
-      content: attr(data-label);
-      color: #555;
-    }
-    .actions button {
+    input, textarea, button {
       width: 100%;
-      margin-bottom: 6px;
+      padding: 10px;
+      margin-top: 5px;
+      box-sizing: border-box;
       font-size: 1rem;
     }
-  }
-  .volumeWeightInput {
-    margin-top: 12px;
-  }
-  .volumeWeightInput label {
-    font-weight: 600;
-    display: block;
-    margin-bottom: 4px;
-  }
-  .volumeWeightInput input {
-    width: 100%;
-    padding: 7px 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-  }
-  #searchInput {
-    width: 100%;
-    padding: 10px 12px;
-    margin-bottom: 15px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-    box-sizing: border-box;
-  }
-  #exportPdfAll {
-    background: #28a745;
-    color: white;
-    border-radius: 8px;
-    padding: 12px 20px;
-    border: none;
-    font-size: 1.1rem;
-    width: 100%;
-    max-width: 300px;
-    display: block;
-    margin: 10px auto 20px auto;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  #exportPdfAll:hover {
-    background: #1e7e34;
-  }
-</style>
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      margin-top: 1.5rem;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .parcel-card {
+      background: white;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 6px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .volume-container input {
+      margin-top: 0.5rem;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Міні база посилок</h1>
+<h1>Мобільна база посилок</h1>
 
-<form id="parcelForm" autocomplete="off">
-  <input type="hidden" id="editIndex" value="">
-  
-  <label for="parcelNumber">№ посилки *</label>
-  <input id="parcelNumber" type="text" required placeholder="Наприклад: ABC123456789" autocomplete="off" />
+<form id="parcelForm">
+  <label for="number">№ Посилки</label>
+  <input type="text" id="number" required />
 
-  <label for="weight">Загальна вага (кг) *</label>
-  <input id="weight" type="number" step="0.01" min="0" required placeholder="Загальна вага" />
+  <label for="weight">Вага (кг)</label>
+  <input type="number" id="weight" step="0.01" min="0" required />
 
-  <label for="placesCount">Кількість місць *</label>
-  <input id="placesCount" type="number" step="1" min="1" required placeholder="Кількість місць" />
+  <label for="places">Кількість місць</label>
+  <input type="number" id="places" step="1" min="1" required />
 
-  <div id="volumeWeightsContainer"></div>
+  <div id="volumeFields" class="volume-container"></div>
 
-  <label for="city">Місто *</label>
-  <input id="city" type="text" required placeholder="Місто отримувача" autocomplete="off" />
+  <label for="city">Місто</label>
+  <input type="text" id="city" required />
 
-  <label for="npBranch">Відділення Нової Пошти *</label>
-  <input id="npBranch" type="text" required placeholder="Назва або номер відділення" autocomplete="off" />
+  <label for="branch">Відділення НП</label>
+  <input type="text" id="branch" required />
 
-  <label for="receiverPhone">Телефон отримувача *</label>
-  <input id="receiverPhone" type="tel" required pattern="^\+?\d{7,15}$" title="Введіть коректний номер телефону" placeholder="+380XXXXXXXXX" autocomplete="off" />
+  <label for="phone">Телефон</label>
+  <input type="tel" id="phone" required pattern="^\+?\d{7,15}$" placeholder="+380..." />
 
-  <label for="priceEuro">Ціна (€) *</label>
-  <input id="priceEuro" type="number" step="0.01" min="0" required placeholder="Ціна в євро" />
+  <label for="price">Ціна (€)</label>
+  <input type="number" id="price" step="0.01" min="0" required />
 
-  <label for="description">Опис</label>
-  <textarea id="description" rows="2" placeholder="Додаткові деталі"></textarea>
+  <label for="desc">Опис</label>
+  <textarea id="desc" rows="2"></textarea>
 
-  <button type="submit">Додати / Оновити посилку</button>
+  <button type="submit">Додати посилку</button>
 </form>
 
-<input type="search" id="searchInput" placeholder="Пошук по номеру, місту, телефону, відділенню…" />
+<div id="parcelList"></div>
 
-<button id="exportPdfAll">Експорт усіх посилок у PDF</button>
-
-<table aria-label="Список посилок" id="parcelTable">
-  <thead>
-    <tr>
-      <th>№ посилки</th>
-      <th>Загальна вага (кг)</th>
-      <th>Кількість місць</th>
-      <th>Об’ємна вага (кг) по місцях</th>
-      <th>Місто</th>
-      <th>Відділення НП</th>
-      <th>Телефон</th>
-      <th>Ціна (€)</th>
-      <th>Опис</th>
-      <th>Дата створення</th>
-      <th>Дії</th>
-    </tr>
-  </thead>
-  <tbody id="parcelList"></tbody>
-</table>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script>
-(() => {
-  const { jsPDF } = window.jspdf;
-  
   const parcelForm = document.getElementById('parcelForm');
-  const parcelListEl = document.getElementById('parcelList');
-  const searchInput = document.getElementById('searchInput');
-  const exportPdfAllBtn = document.getElementById('exportPdfAll');
-  const placesCountInput = document.getElementById('placesCount');
-  const volumeWeightsContainer = document.getElementById('volumeWeightsContainer');
+  const parcelList = document.getElementById('parcelList');
+  const volumeFields = document.getElementById('volumeFields');
+  const placesInput = document.getElementById('places');
 
   let parcels = JSON.parse(localStorage.getItem('parcels') || '[]');
 
-  function createVolumeWeightInput(index, value = '') {
-    const div = document.createElement('div');
-    div.classList.add('volumeWeightInput');
-    const label = document.createElement('label');
-    label.htmlFor = `volumeWeight${index}`;
-    label.textContent = `Об’ємна вага місця #${index + 1} (кг) *`;
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.min = '0';
-    input.step = '0.01';
-    input.required = true;
-    input.id = `volumeWeight${index}`;
-    input.name = 'volumeWeights[]';
-    input.placeholder = `Об’ємна вага місця #${index + 1}`;
-    input.value = value;
-    div.appendChild(label);
-    div.appendChild(input);
-    volumeWeightsContainer.appendChild(div);
+  // Рендер посилок
+  function renderParcels() {
+    parcelList.innerHTML = '';
+    parcels.forEach(p => {
+      const div = document.createElement('div');
+      div.className = 'parcel-card';
+      div.innerHTML = `
+        <strong>${p.number}</strong><br/>
+        Вага: ${p.weight} кг<br/>
+        Кількість місць: ${p.places}<br/>
+        Обʼємна вага: ${p.volume.join(', ')}<br/>
+        Місто: ${p.city}<br/>
+        Відділення НП: ${p.branch}<br/>
+        Телефон: ${p.phone}<br/>
+        Ціна: €${p.price}<br/>
+        Опис: ${p.desc || '—'}
+      `;
+      parcelList.appendChild(div);
+    });
   }
 
-  function updateVolumeWeightInputs() {
-    const count = parseInt(placesCountInput.value);
-    volumeWeightsContainer.innerHTML = '';
+  // Динамічне створення полів для обʼємної ваги
+  placesInput.addEventListener('input', () => {
+    const count = parseInt(placesInput.value);
+    volumeFields.innerHTML = '';
     if (count > 0) {
       for (let i = 0; i < count; i++) {
-        createVolumeWeightInput(i);
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.step = '0.01';
+        input.min = '0';
+        input.placeholder = `Обʼємна вага для місця #${i + 1}`;
+        input.required = true;
+        volumeFields.appendChild(input);
       }
     }
-  }
+  });
 
-  placesCountInput.addEventListener('input', updateVolumeWeightInputs);
-  updateVolumeWeightInputs();
-
-  function renderTable(filterText = '') {
-    parcelListEl.innerHTML = '';
-    const filtered = parcels.filter(p => {
-      const searchStr = (
-        p.number + ' ' + p.city + ' ' + p.npBranch + ' ' + p.receiverPhone
-      ).toLowerCase();
-      return searchStr.includes(filterText.toLowerCase());
-    });
-    if(filtered.length === 0) {
-      parcelListEl.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:10px;">Посилок не знайдено</td></tr>';
-      return;
-    }
-    filtered.forEach((p, i) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td data-label="№ посилки">${p.number}</td>
-        <td data-label="Загальна вага (кг)">${p.weight.toFixed(2)}</td>
-        <td data-label="Кількість місць">${p.placesCount}</td>
-        <td data-label="Об’ємна вага (кг) по місцях">${p.volumeWeights.map(w => w.toFixed(2)).join(', ')}</td>
-        <td data-label="Місто">${p.city}</td>
-        <td data-label="Відділення НП">${p.npBranch}</td>
-        <td data-label="Телефон">${p.receiverPhone}</td>
-        <td data-label="Ціна (€)">${p.priceEuro.toFixed(2)}</td>
-        <td data-label="Опис">${p.description || ''}</td>
-        <td data-label="Дата створення">${new Date(p.createdAt).toLocaleString()}</td>
-        <td data-label="Дії" class="actions">
-          <button data-index="${i}" class="editBtn" aria-label="Редагувати посилку ${p.number}">Редагувати</button>
-          <button data-index="${i}" class="deleteBtn" aria-label="Видалити посилку ${p.number}">Видалити</button>
-          <button data-index="${i}" class="pdfBtn" aria-label="Експорт посилки ${p.number} в PDF">PDF</button>
-        </td>
-      `;
-      parcelListEl.appendChild(tr);
-    });
-  }
-
-  function saveData() {
-    localStorage.setItem('parcels', JSON.stringify(parcels));
-  }
-
-  function validatePhone(phone) {
-    const phoneRegex = /^\+?\d{7,15}$/;
-    return phoneRegex.test(phone);
-  }
-
-  function clearForm() {
-    parcelForm.reset();
-    document.getElementById('editIndex').value = '';
-    updateVolumeWeightInputs();
-  }
-
+  // Обробка форми
   parcelForm.addEventListener('submit', e => {
     e.preventDefault();
-
-    const editIndex = document.getElementById('editIndex').value;
-    const number = document.getElementById('parcelNumber').value.trim();
-    const weight = parseFloat(document.getElementById('weight').value);
-    const placesCount = parseInt(document.getElementById('placesCount').value);
-    const city = document.getElementById('city').value.trim();
-    const npBranch = document.getElementById('npBranch').value.trim();
-    const receiverPhone = document.getElementById('receiverPhone').value.trim();
-    const priceEuro = parseFloat(document.getElementById('priceEuro').value);
-    const description = document.getElementById('description').value.trim();
-
-    const volumeWeightsElems = document.querySelectorAll('input[name="volumeWeights[]"]');
-    const volumeWeights = Array.from(volumeWeightsElems).map(i => parseFloat(i.value));
-
-    if (!validatePhone(receiverPhone)) {
-      alert('Введіть коректний номер телефону у форматі +380XXXXXXXXX');
-      return;
-    }
-
-    if (volumeWeights.some(isNaN)) {
-      alert('Введіть всі об’ємні ваги коректно');
-      return;
-    }
-    if (volumeWeights.length !== placesCount) {
-      alert('Кількість об’ємних ваг повинна відповідати кількості місць');
-      return;
-    }
-
-    if(editIndex !== '') {
-      parcels[editIndex] = {
-        ...parcels[editIndex],
-        number, weight, placesCount, volumeWeights, city, npBranch, receiverPhone, priceEuro, description
-      };
-    } else {
-      if(parcels.some(p => p.number === number)) {
-        alert('Посилка з таким номером вже існує!');
-        return;
-      }
-      parcels.push({
-        number, weight, placesCount, volumeWeights, city, npBranch, receiverPhone, priceEuro, description,
-        createdAt: new Date().toISOString()
-      });
-    }
-    saveData();
-    renderTable(searchInput.value);
-    clearForm();
+    const volumeInputs = volumeFields.querySelectorAll('input');
+    const volume = Array.from(volumeInputs).map(i => parseFloat(i.value));
+    const data = {
+      number: document.getElementById('number').value,
+      weight: parseFloat(document.getElementById('weight').value),
+      places: parseInt(document.getElementById('places').value),
+      volume,
+      city: document.getElementById('city').value,
+      branch: document.getElementById('branch').value,
+      phone: document.getElementById('phone').value,
+      price: parseFloat(document.getElementById('price').value),
+      desc: document.getElementById('desc').value
+    };
+    parcels.push(data);
+    localStorage.setItem('parcels', JSON.stringify(parcels));
+    renderParcels();
+    parcelForm.reset();
+    volumeFields.innerHTML = '';
   });
 
-  parcelListEl.addEventListener('click', e => {
-    const idx = e.target.dataset.index;
-    if (e.target.classList.contains('deleteBtn')) {
-      if(confirm(`Видалити посилку №${parcels[idx].number}?`)) {
-        parcels.splice(idx, 1);
-        saveData();
-        renderTable(searchInput.value);
-        clearForm();
-      }
-    } else if (e.target.classList.contains('editBtn')) {
-      const p = parcels[idx];
-      document.getElementById('editIndex').value = idx;
-      document.getElementById('parcelNumber').value = p.number;
-      document.getElementById('weight').value = p.weight;
-      document.getElementById('placesCount').value = p.placesCount;
-      updateVolumeWeightInputs();
-      setTimeout(() => {
-        const volInputs = document.querySelectorAll('input[name="volumeWeights[]"]');
-        volInputs.forEach((input, i) => {
-          input.value = p.volumeWeights[i] || '';
-        });
-      }, 0);
-      document.getElementById('city').value = p.city;
-      document.getElementById('npBranch').value = p.npBranch;
-      document.getElementById('receiverPhone').value = p.receiverPhone;
-      document.getElementById('priceEuro').value = p.priceEuro;
-      document.getElementById('description').value = p.description;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else if (e.target.classList.contains('pdfBtn')) {
-      generatePdfSingle(parcels[idx]);
-    }
-  });
+  renderParcels();
+</script>
 
-  searchInput.addEventListener('input', () => {
-    renderTable(searchInput.value);
-  });
-
-  exportPdfAllBtn.addEventListener('click', () => {
-    generatePdfAll(parcels);
-  });
-
-  function generatePdfSingle(parcel) {
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text(`Посилка №${parcel.number}`, 10, 20);
-
-    const lines = [
-      ['Вага (кг)', parcel.weight.toFixed(2)],
-      ['Кількість місць',
+</body>
+</html>
