@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Автосервіс - Онлайн рахунки і акти</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: auto;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    h1, h2 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 6px;
+      margin-top: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 12px;
+      padding: 10px 15px;
+      background-color: #007bff;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .section {
+      background: white;
+      padding: 15px 20px;
+      margin-bottom: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 7px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #007bff;
+      color: white;
+    }
+    .invoice, .act {
+      white-space: pre-wrap;
+      background: #eee;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 15px;
+      font-family: monospace;
+    }
+    .small-btn {
+      font-size: 12px;
+      padding: 5px 8px;
+      margin-left: 5px;
+      background: #dc3545;
+    }
+    #importFile {
+      margin-top: 12px;
+    }
+    .btn-group {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+  </style>
+  <!-- Підключаємо jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+  <h1>Автосервіс — Онлайн рахунки та акти</h1>
+
+  <div class="section" id="client-section">
+    <h2>Додати клієнта</h2>
+    <label>Ім'я клієнта:
+      <input type="text" id="clientName" />
+    </label>
+    <label>Телефон або email:
+      <input type="text" id="clientContact" />
+    </label>
+    <button onclick="addClient()">Додати клієнта</button>
+    <h3>Список клієнтів</h3>
+    <select id="clientsList" size="5" style="width: 100%;"></select>
+  </div>
+
+  <div class="section" id="work-section">
+    <h2>Створити рахунок</h2>
+    <label>Оберіть клієнта:
+      <select id="invoiceClient"></select>
+    </label>
+    <label>Опис робіт (наприклад, заміна масла):
+      <input type="text" id="workDescription" />
+    </label>
+    <label>Ціна (грн):
+      <input type="number" id="workPrice" />
+    </label>
+    <button onclick="addWork()">Додати роботу</button>
+
+    <h3>Роботи у рахунку</h3>
+    <table id="workTable">
+      <thead><tr><th>Опис</th><th>Ціна</th><th>Видалити</th></tr></thead>
+      <tbody></tbody>
+    </table>
+
+    <div class="btn-group">
+      <button onclick="generateInvoice()">Згенерувати рахунок</button>
+      <button onclick="printInvoice()">Друк рахунку</button>
+      <button onclick="saveInvoicePDF()">Зберегти PDF рахунку</button>
+    </div>
+
+    <pre class="invoice" id="invoiceOutput"></pre>
+  </div>
+
+  <div class="section" id="act-section">
+    <h2>Згенерувати акт виконаних робіт</h2>
+    <label>Оберіть рахунок (номер):
+      <select id="invoiceForAct"></select>
+    </label>
+    <div class="btn-group">
+      <button onclick="generateAct()">Згенерувати акт</button>
+      <button onclick="printAct()">Друк акту</button>
+      <button onclick="saveActPDF()">Зберегти PDF акту</button>
+    </div>
+
+    <pre class="act" id="actOutput"></pre>
+  </div>
+
+  <div class="section" id="data-section">
+    <h2>Імпорт / Експорт даних</h2>
+    <button onclick="exportData()">Експортувати дані (JSON)</button>
+    <input type="file" id="importFile" accept=".json" />
+    <button onclick="importData()">Імпортувати дані</button>
+  </div>
+
+<script>
+  // Ініціалізація даних з localStorage
+  let clients = JSON.parse(localStorage.getItem('clients') || '[]');
+  let works = [];
+  let invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+
+  function refreshClients() {
+    const clientsList = document.getElementById('clientsList');
+    const invoiceClient = document.getElementById('invoiceClient');
+    clientsList.innerHTML = '';
+    invoiceClient.innerHTML = '<option value="">-- оберіть клієнта --</option>';
+    clients.forEach((c, i) => {
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `${c.name} (${c.contact})`;
+      clientsList.appendChild(opt);
+
+      const opt2 = document.createElement('option');
+      opt2.value = i;
+      opt2.textContent = `${c.name} (${c.contact})`;
+      invoiceClient.appendChild(opt2);
+    });
+  }
+
+  function addClient() {
+    const name = document.getElementById('clientName').value.trim();
+    const contact = document.getElementById('clientContact').value.trim();
+    if (!name) { alert('Введіть ім'я клієнта'); return; }
+    clients.push({name, contact});
+    localStorage.setItem('clients', JSON.stringify(clients));
+    document.getElementById('clientName').value = '';
+    document.getElementById('clientContact').value = '';
+    refreshClients();
+    alert('Клієнта додано');
+  }
+
+  function refreshWorks() {
+    const tbody = document.querySelector('#workTable tbody');
+    tbody.innerHTML = '';
+    works.forEach((w, i) => {
+      const tr = document.createElement('tr');
+      const tdDesc = document.createElement('td');
+      tdDesc.textContent = w.description;
+      const tdPrice = document.createElement('td');
+      tdPrice.textContent = w.price.toFixed(2);
+      const tdDel = document.createElement('td');
+      const btnDel = document.createElement('button');
+      btnDel.textContent = 'Видалити';
+      btnDel.className = 'small-btn';
+      btnDel.onclick = () => {
+        works.splice(i,1);
+        refreshWorks();
+      };
+      tdDel.appendChild(btnDel);
+      tr.appendChild(tdDesc);
+      tr.appendChild(tdPrice);
+      tr.appendChild(tdDel);
+      tbody.appendChild(tr);
+    });
+  }
+
+  function addWork() {
+    const description = document.getElementById('workDescription').value.trim();
+    const priceStr = document.getElementById('workPrice').value.trim();
+    const price = parseFloat(priceStr);
+    if (!description) { alert('Введіть опис роботи'); return; }
+    if (isNaN(price) || price <= 0) { alert('Введіть коректну ціну'); return; }
+    works.push({description, price});
+    document.getElementById('workDescription').value = '';
+    document.getElementById('workPrice').value = '';
+    refreshWorks();
+  }
+
+  function generateInvoice() {
+    const clientIndex = document.getElementById('invoiceClient').value;
+    if (clientIndex === '') { alert('Оберіть клієнта'); return; }
+    if (works.length === 0) { alert('Додайте хоча б одну роботу'); return; }
+    const client = clients[clientIndex];
+    const invoiceNumber = invoices.length + 1;
+    const date = new Date().toLocaleDateString();
+
+    let total = 0;
+    let textWorks = '';
+    works.forEach((w,i) => {
+      textWorks += `${i+1}. ${w.description} — ${w.price.toFixed(2)} грн
+`;
+      total += w.price;
+    });
+
+    const invoiceText = 
+`РАХУНОК №${invoiceNumber}
+Дата: ${date}
+
+Клієнт: ${client.name}
+Контакт: ${client.contact}
+
+Роботи:
+${textWorks}
+Загальна сума: ${total.toFixed(2)} грн
+
+Дякуємо за співпрацю!
+`;
+
+    invoices.push({
+      number: invoiceNumber,
+      date,
+      client,
+      works: [...works],
+      total
+    });
+    localStorage.setItem('invoices', JSON.stringify(invoices));
+
+    works = [];
+    refreshWorks();
+    refreshInvoicesForAct();
+
+    document.getElementById('invoiceOutput').textContent = invoiceText;
+  }
+
+  function refreshInvoicesForAct() {
+    const sel = document.getElementById('invoiceForAct');
+    sel.innerHTML = '';
+    invoices.forEach(inv => {
+      const opt = document.createElement('option');
+      opt.value = inv.number;
+      opt.textContent = `Рахунок №${inv.number} від ${inv.date} — ${inv.client.name}`;
+      sel.appendChild(opt);
+    });
+  }
+
+  function generateAct() {
+    const num = parseInt(document.getElementById('invoiceForAct').value);
+    if (isNaN(num)) {
+      alert('Оберіть рахунок');
+      return;
+    }
+    const invoice = invoices.find(inv => inv.number === num);
+    if (!invoice) {
+      alert('Рахунок не знайдено');
+      return;
+    }
+
+    let textWorks = '';
+    invoice.works.forEach((w,i) => {
+      textWorks += `${i+1}. ${w.description} — ${w.price.toFixed(2)} грн
+`;
+    });
+
+    const actText = 
+`АКТ ВИКОНАНИХ РОБІТ
+Дата: ${invoice.date}
+Рахунок №${invoice.number}
+
+Клієнт: ${invoice.client.name}
+Контакт: ${invoice.client.contact}
+
+Виконані роботи:
+${textWorks}
+Загальна сума: ${invoice.total.toFixed(2)} грн
+
+Підписи:
+Клієнт: ____________      Виконавець: ____________
+
+Дякуємо за довіру!
+`;
+
+    document.getElementById('actOutput').textContent = actText;
+  }
+
+  function printInvoice() {
+    const content = document.getElementById('invoiceOutput').textContent;
+    if (!content) {
+      alert('Спочатку згенеруйте рахунок');
+      return;
+    }
+    const printWindow = window.open('', '', 'width=600,height=600');
+    printWindow.document.write('<pre style="font-family: monospace; white-space: pre-wrap;">' + content + '</pre>');
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  }
+
+  function printAct() {
+    const content = document.getElementById('actOutput').textContent;
+    if (!content) {
+      alert('Спочатку згенеруйте акт');
+      return;
+    }
+    const printWindow = window.open('', '', 'width=600,height=600');
+    printWindow.document.write('<pre style="font-family: monospace; white-space: pre-wrap;">' + content + '</pre>');
+    printWindow.document.close();
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  }
+
+  async function saveInvoicePDF() {
+    const content = document.getElementById('invoiceOutput').textContent;
+    if (!content) {
+      alert('Спочатку згенеруйте рахунок');
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const splitText = doc.splitTextToSize(content, 180);
+    doc.setFont("Courier");
+    doc.setFontSize(12);
+    doc.text(splitText, 10, 10);
+    doc.save('invoice.pdf');
+  }
+
+  async function saveActPDF() {
+    const content = document.getElementById('actOutput').textContent;
+    if (!content) {
+      alert('Спочатку згенеруйте акт');
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const splitText = doc.splitTextToSize(content, 180);
+    doc.setFont("Courier");
+    doc.setFontSize(12);
+    doc.text(splitText, 10, 10);
+    doc.save('act.pdf');
+  }
+
+  function exportData() {
+    const data = {
+      clients,
+      invoices
+    };
+    const dataStr = JSON.stringify(data, null, 2);
+    const blob = new Blob([dataStr], {type: "application/json"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = "autoservice_data.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function importData() {
+    const fileInput = document.getElementById('importFile');
+    if (!fileInput.files.length) {
+      alert('Оберіть файл для імпорту');
+      return;
+    }
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!data.clients || !data.invoices) throw "Невірний формат файлу";
+        clients = data.clients;
+        invoices = data.invoices;
+        localStorage.setItem('clients', JSON.stringify(clients));
+        localStorage.setItem('invoices', JSON.stringify(invoices));
+        refreshClients();
+        refreshInvoicesForAct();
+        alert('Дані успішно імпортовані');
+      } catch(err) {
+        alert('Помилка імпорту: ' + err);
+      }
+    };
+    reader.readAsText(file);
+  }
+
+  refreshClients();
+  refreshWorks();
+  refreshInvoicesForAct();
+</script>
+
+</body>
+</html>
