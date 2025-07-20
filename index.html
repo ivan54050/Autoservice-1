@@ -67,6 +67,9 @@
     color: #222;
     resize: vertical;
   }
+  select[multiple] {
+    height: 7rem;
+  }
   button.submit {
     background: #000;
     color: white;
@@ -109,6 +112,20 @@
   }
   td button.delete:hover {
     background: #c0392b;
+  }
+  td button.pdf-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-right: 0.3rem;
+    transition: background-color 0.3s ease;
+  }
+  td button.pdf-btn:hover {
+    background: #1e7e34;
   }
   .actions {
     margin-bottom: 1.5rem;
@@ -175,6 +192,10 @@
 
 <main>
   <section id="clients" class="active" role="tabpanel" aria-label="Клієнти">
+    <div class="actions">
+      <button id="importClientsBtn" type="button">Імпорт клієнтів</button>
+      <button id="exportClientsBtn" type="button">Експорт клієнтів</button>
+    </div>
     <form id="clientForm">
       <input type="text" id="clientName" placeholder="Ім'я клієнта" required autocomplete="off" />
       <input type="tel" id="clientPhone" placeholder="Телефон" autocomplete="off" />
@@ -187,12 +208,17 @@
   </section>
 
   <section id="cars" role="tabpanel" aria-label="Автомобілі">
+    <div class="actions">
+      <button id="importCarsBtn" type="button">Імпорт авто</button>
+      <button id="exportCarsBtn" type="button">Експорт авто</button>
+    </div>
     <form id="carForm">
-      <input type="text" id="carOwner" placeholder="Власник (клієнт)" required autocomplete="off"/>
+      <input type="text" id="carOwner" placeholder="Власник (клієнт)" required autocomplete="off" list="clientNames" />
       <input type="text" id="carModel" placeholder="Модель автомобіля" required autocomplete="off"/>
       <input type="text" id="carVIN" placeholder="VIN (опційно)" autocomplete="off"/>
       <button type="submit" class="submit">Додати автомобіль</button>
     </form>
+    <datalist id="clientNames"></datalist>
     <table>
       <thead><tr><th>Власник</th><th>Модель</th><th>VIN</th><th>Видалити</th></tr></thead>
       <tbody id="carList"></tbody>
@@ -200,6 +226,10 @@
   </section>
 
   <section id="parts" role="tabpanel" aria-label="Запчастини">
+    <div class="actions">
+      <button id="importPartsBtn" type="button">Імпорт запчастин</button>
+      <button id="exportPartsBtn" type="button">Експорт запчастин</button>
+    </div>
     <form id="partForm">
       <input type="text" id="partName" placeholder="Назва запчастини" required autocomplete="off" />
       <input type="number" id="partPrice" placeholder="Ціна, грн" required min="0" step="0.01" autocomplete="off" />
@@ -212,17 +242,27 @@
   </section>
 
   <section id="invoices" role="tabpanel" aria-label="Рахунки">
+    <div class="actions">
+      <button id="importInvoicesBtn" type="button">Імпорт рахунків</button>
+      <button id="exportInvoicesBtn" type="button">Експорт рахунків</button>
+    </div>
     <form id="invoiceForm">
-      <input type="text" id="invoiceClient" placeholder="Клієнт" required autocomplete="off" />
-      <input type="text" id="invoiceCar" placeholder="Автомобіль" required autocomplete="off" />
+      <label for="invoiceClient">Клієнт</label>
+      <input type="text" id="invoiceClient" required autocomplete="off" list="clientNames" />
+      <label for="invoiceCar">Автомобіль</label>
+      <select id="invoiceCar" required></select>
+      <label for="invoiceParts">Запчастини (утримуй Ctrl/Cmd для вибору кількох)</label>
+      <select id="invoiceParts" multiple></select>
+      <label for="invoiceWork">Роботи</label>
       <textarea id="invoiceWork" placeholder="Опис робіт" required></textarea>
-      <input type="number" id="invoiceWorkPrice" placeholder="Вартість робіт, грн" min="0" step="0.01" value="0" autocomplete="off" />
+      <label for="invoiceWorkPrice">Вартість робіт, грн</label>
+      <input type="number" id="invoiceWorkPrice" min="0" step="0.01" value="0" autocomplete="off" />
       <button type="submit" class="submit">Додати рахунок</button>
     </form>
     <table>
       <thead>
         <tr>
-          <th>Клієнт</th><th>Автомобіль</th><th>Роботи</th><th>Сума, грн</th><th>Видалити</th>
+          <th>Клієнт</th><th>Автомобіль</th><th>Запчастини</th><th>Роботи</th><th>Сума, грн</th><th>PDF</th><th>Видалити</th>
         </tr>
       </thead>
       <tbody id="invoiceList"></tbody>
@@ -230,26 +270,34 @@
   </section>
 
   <section id="acts" role="tabpanel" aria-label="Акти">
+    <div class="actions">
+      <button id="importActsBtn" type="button">Імпорт актів</button>
+      <button id="exportActsBtn" type="button">Експорт актів</button>
+    </div>
     <form id="actForm">
-      <input type="text" id="actClient" placeholder="Ім'я клієнта" required autocomplete="off" />
+      <input type="text" id="actClient" placeholder="Ім'я клієнта" required autocomplete="off" list="clientNames" />
       <input type="text" id="actCar" placeholder="Авто" required autocomplete="off"/>
       <textarea id="actWork" placeholder="Опис робіт" required></textarea>
       <button type="submit" class="submit">Додати акт</button>
     </form>
     <table>
       <thead>
-        <tr><th>Клієнт</th><th>Авто</th><th>Роботи</th><th>Видалити</th></tr>
+        <tr><th>Клієнт</th><th>Авто</th><th>Роботи</th><th>PDF</th><th>Видалити</th></tr>
       </thead>
       <tbody id="actList"></tbody>
     </table>
   </section>
 </main>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Вкладки
+  const { jsPDF } = window.jspdf;
+
   const tabs = document.querySelectorAll('nav button.tab');
   const sections = document.querySelectorAll('main section');
+
   tabs.forEach(tab => {
     tab.addEventListener('click', () => {
       tabs.forEach(t => t.classList.remove('active'));
@@ -259,168 +307,86 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Дані у localStorage
   let clients = JSON.parse(localStorage.getItem('clients') || '[]');
   let cars = JSON.parse(localStorage.getItem('cars') || '[]');
   let parts = JSON.parse(localStorage.getItem('parts') || '[]');
   let invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
   let acts = JSON.parse(localStorage.getItem('acts') || '[]');
 
-  // Рендер функції
-  function renderClients(){
+  function updateClientDatalist() {
+    const datalist = document.getElementById('clientNames');
+    datalist.innerHTML = '';
+    clients.forEach(c => {
+      const option = document.createElement('option');
+      option.value = c.name;
+      datalist.appendChild(option);
+    });
+  }
+
+  function renderClients() {
     const tbody = document.getElementById('clientList');
     tbody.innerHTML = '';
-    clients.forEach((c,i) => {
+    clients.forEach((c, i) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${c.name}</td><td>${c.phone || ''}</td><td><button data-type="client" data-index="${i}" class="delete">×</button></td>`;
       tbody.appendChild(tr);
     });
+    updateClientDatalist();
   }
-  function renderCars(){
+
+  function renderCars() {
     const tbody = document.getElementById('carList');
     tbody.innerHTML = '';
-    cars.forEach((c,i) => {
+    cars.forEach((c, i) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${c.owner}</td><td>${c.model}</td><td>${c.vin || ''}</td><td><button data-type="car" data-index="${i}" class="delete">×</button></td>`;
       tbody.appendChild(tr);
     });
+
+    // Оновлюємо select авто для рахунків
+    const sel = document.getElementById('invoiceCar');
+    sel.innerHTML = '';
+    cars.forEach((c, i) => {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `${c.model} (власник: ${c.owner})`;
+      sel.appendChild(option);
+    });
   }
-  function renderParts(){
+
+  function renderParts() {
     const tbody = document.getElementById('partList');
     tbody.innerHTML = '';
-    parts.forEach((p,i) => {
+    parts.forEach((p, i) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `<td>${p.name}</td><td>${p.price.toFixed(2)}</td><td><button data-type="part" data-index="${i}" class="delete">×</button></td>`;
       tbody.appendChild(tr);
     });
+
+    // Оновлюємо select запчастин для рахунків
+    const sel = document.getElementById('invoiceParts');
+    sel.innerHTML = '';
+    parts.forEach((p, i) => {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `${p.name} — ${p.price.toFixed(2)} грн`;
+      sel.appendChild(option);
+    });
   }
-  function renderInvoices(){
+
+  function renderInvoices() {
     const tbody = document.getElementById('invoiceList');
     tbody.innerHTML = '';
-    invoices.forEach((inv,i) => {
-      const sum = (parseFloat(inv.workPrice) || 0);
+    invoices.forEach((inv, i) => {
+      const selectedParts = inv.parts.map(idx => parts[idx]?.name || '').filter(n => n).join(', ');
+      const partsSum = inv.parts.reduce((sum, idx) => sum + (parts[idx]?.price || 0), 0);
+      const workPrice = parseFloat(inv.workPrice) || 0;
+      const totalPrice = partsSum + workPrice;
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${inv.client}</td><td>${inv.car}</td><td>${inv.work}</td><td>${sum.toFixed(2)}</td><td><button data-type="invoice" data-index="${i}" class="delete">×</button></td>`;
-      tbody.appendChild(tr);
-    });
-  }
-  function renderActs(){
-    const tbody = document.getElementById('actList');
-    tbody.innerHTML = '';
-    acts.forEach((act,i) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${act.client}</td><td>${act.car}</td><td>${act.work}</td><td><button data-type="act" data-index="${i}" class="delete">×</button></td>`;
-      tbody.appendChild(tr);
-    });
-  }
-
-  // Початковий рендер
-  renderClients();
-  renderCars();
-  renderParts();
-  renderInvoices();
-  renderActs();
-
-  // Додавання клієнта
-  document.getElementById('clientForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const name = document.getElementById('clientName').value.trim();
-    const phone = document.getElementById('clientPhone').value.trim();
-    if(!name) return alert('Вкажіть ім\'я клієнта');
-    clients.push({name, phone});
-    localStorage.setItem('clients', JSON.stringify(clients));
-    renderClients();
-    e.target.reset();
-  });
-
-  // Додавання авто
-  document.getElementById('carForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const owner = document.getElementById('carOwner').value.trim();
-    const model = document.getElementById('carModel').value.trim();
-    const vin = document.getElementById('carVIN').value.trim();
-    if(!owner || !model) return alert('Вкажіть власника і модель авто');
-    cars.push({owner, model, vin});
-    localStorage.setItem('cars', JSON.stringify(cars));
-    renderCars();
-    e.target.reset();
-  });
-
-  // Додавання запчастин
-  document.getElementById('partForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const name = document.getElementById('partName').value.trim();
-    const price = parseFloat(document.getElementById('partPrice').value);
-    if(!name || isNaN(price)) return alert('Вкажіть назву і ціну запчастини');
-    parts.push({name, price});
-    localStorage.setItem('parts', JSON.stringify(parts));
-    renderParts();
-    e.target.reset();
-  });
-
-  // Додавання рахунку
-  document.getElementById('invoiceForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const client = document.getElementById('invoiceClient').value.trim();
-    const car = document.getElementById('invoiceCar').value.trim();
-    const work = document.getElementById('invoiceWork').value.trim();
-    const workPrice = parseFloat(document.getElementById('invoiceWorkPrice').value) || 0;
-    if(!client || !car || !work) return alert('Вкажіть клієнта, автомобіль та опис робіт');
-    invoices.push({client, car, work, workPrice});
-    localStorage.setItem('invoices', JSON.stringify(invoices));
-    renderInvoices();
-    e.target.reset();
-  });
-
-  // Додавання акту
-  document.getElementById('actForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const client = document.getElementById('actClient').value.trim();
-    const car = document.getElementById('actCar').value.trim();
-    const work = document.getElementById('actWork').value.trim();
-    if(!client || !car || !work) return alert('Вкажіть клієнта, авто та опис робіт');
-    acts.push({client, car, work});
-    localStorage.setItem('acts', JSON.stringify(acts));
-    renderActs();
-    e.target.reset();
-  });
-
-  // Видалення елементів
-  document.body.addEventListener('click', e => {
-    if(e.target.classList.contains('delete')) {
-      const type = e.target.dataset.type;
-      const index = +e.target.dataset.index;
-      if(type && !isNaN(index)) {
-        if(type === 'client') {
-          clients.splice(index, 1);
-          localStorage.setItem('clients', JSON.stringify(clients));
-          renderClients();
-        }
-        else if(type === 'car') {
-          cars.splice(index, 1);
-          localStorage.setItem('cars', JSON.stringify(cars));
-          renderCars();
-        }
-        else if(type === 'part') {
-          parts.splice(index, 1);
-          localStorage.setItem('parts', JSON.stringify(parts));
-          renderParts();
-        }
-        else if(type === 'invoice') {
-          invoices.splice(index, 1);
-          localStorage.setItem('invoices', JSON.stringify(invoices));
-          renderInvoices();
-        }
-        else if(type === 'act') {
-          acts.splice(index, 1);
-          localStorage.setItem('acts', JSON.stringify(acts));
-          renderActs();
-        }
-      }
-    }
-  });
-});
-</script>
-
-</body>
-</html>
+      tr.innerHTML = `
+        <td>${inv.client}</td>
+        <td>${cars[inv.car]?.model || ''}</td>
+        <td>${selectedParts}</td>
+        <td>${inv.work}</td>
+        <td>${totalPrice.toFixed(2)}</td>
+        <td><button class="pdf-btn" data-index="${
