@@ -3,57 +3,159 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Крипто-бот аналітика</title>
+<title>Розширений Крипто-Бот</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 400px; margin: 30px auto; text-align: center; }
+  body { font-family: Arial, sans-serif; max-width: 700px; margin: 30px auto; text-align: center; }
   h1 { margin-bottom: 20px; }
-  #price { font-size: 2em; margin: 20px 0; }
-  #signal { font-weight: bold; font-size: 1.5em; }
-  button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+  #price { font-size: 2em; margin: 10px 0; }
+  #signal { font-weight: bold; font-size: 1.3em; margin: 15px 0; }
+  button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin-bottom: 20px; }
+  canvas { max-width: 100%; }
+  #lastUpdated { font-size: 0.9em; color: #555; margin-bottom: 10px;}
 </style>
 </head>
 <body>
 
-<h1>Крипто-бот аналітика</h1>
+<h1>Розширений Крипто-Бот (BTC/USD)</h1>
 
-<div>Поточна ціна BTC:</div>
 <div id="price">Завантаження...</div>
 <div id="signal">Чекаємо на дані...</div>
+<div id="lastUpdated"></div>
+<button onclick="fetchData()">Оновити зараз</button>
 
-<button onclick="fetchPrice()">Оновити</button>
+<canvas id="priceChart" width="700" height="350"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-  async function fetchPrice() {
-    const priceEl = document.getElementById('price');
-    const signalEl = document.getElementById('signal');
+  const priceEl = document.getElementById('price');
+  const signalEl = document.getElementById('signal');
+  const lastUpdatedEl = document.getElementById('lastUpdated');
+  const ctx = document.getElementById('priceChart').getContext('2d');
+  let chart;
+
+  // Функція для розрахунку RSI на основі масиву цін
+  function calculateRSI(closes, period = 14) {
+    let gains = 0;
+    let losses = 0;
+    let rsiArray = [];
+
+    for (let i = 1; i < closes.length; i++) {
+      let change = closes[i] - closes[i - 1];
+      gains += change > 0 ? change : 0;
+      losses += change < 0 ? Math.abs(change) : 0;
+      if (i >= period) break;
+    }
+
+    let averageGain = gains / period;
+    let averageLoss = losses / period;
+
+    rsiArray[period] = 100 - (100 / (1 + (averageGain / averageLoss)));
+
+    for (let i = period + 1; i < closes.length; i++) {
+      let change = closes[i] - closes[i - 1];
+      let gain = change > 0 ? change : 0;
+      let loss = change < 0 ? Math.abs(change) : 0;
+
+      averageGain = ((averageGain * (period - 1)) + gain) / period;
+      averageLoss = ((averageLoss * (period - 1)) + loss) / period;
+
+      let rs = averageLoss === 0 ? 100 : averageGain / averageLoss;
+      rsiArray[i] = 100 - (100 / (1 + rs));
+    }
+
+    return rsiArray;
+  }
+
+  async function fetchData() {
     priceEl.textContent = 'Завантаження...';
     signalEl.textContent = '...';
+    lastUpdatedEl.textContent = '';
 
     try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-      const data = await response.json();
-      const price = data.bitcoin.usd;
-      priceEl.textContent = `$${price.toLocaleString()}`;
+      // Завантажуємо поточну ціну BTC/USD
+      const priceRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+      const priceData = await priceRes.json();
+      const currentPrice = priceData.bitcoin.usd;
 
-      // Проста логіка рекомендації (поріг можна змінити)
-      if (price < 20000) {
-        signalEl.textContent = 'Рекомендація: Купувати (ціна низька)';
+      priceEl.textContent = `Ціна BTC: $${currentPrice.toLocaleString()}`;
+
+      // Завантажуємо історію цін (24 години, 1хв інтервал)
+      const chartRes = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1&interval=minute');
+      const chartData = await chartRes.json();
+
+      const prices = chartData.prices; // масив [timestamp, price]
+
+      // Витягуємо час і ціни
+      const labels = prices.map(p => {
+        const date = new Date(p[0]);
+        return date.getHours() + ':' + String(date.getMinutes()).padStart(2, '0');
+      });
+
+      const closePrices = prices.map(p => p[1]);
+
+      // Обчислюємо RSI
+      const rsiValues = calculateRSI(closePrices);
+      const lastRSI = rsiValues[rsiValues.length - 1];
+
+      // Виводимо рекомендацію
+      if (lastRSI < 30) {
+        signalEl.textContent = `RSI: ${lastRSI.toFixed(2)} — Купувати (перепродано)`;
         signalEl.style.color = 'green';
-      } else if (price > 40000) {
-        signalEl.textContent = 'Рекомендація: Продавати (ціна висока)';
+      } else if (lastRSI > 70) {
+        signalEl.textContent = `RSI: ${lastRSI.toFixed(2)} — Продавати (перекуплено)`;
         signalEl.style.color = 'red';
       } else {
-        signalEl.textContent = 'Рекомендація: Тримати (очікуємо змін)';
+        signalEl.textContent = `RSI: ${lastRSI.toFixed(2)} — Тримати`;
         signalEl.style.color = 'orange';
       }
+
+      // Виводимо графік ціни
+      if (chart) {
+        chart.destroy();
+      }
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Ціна BTC (USD)',
+            data: closePrices,
+            borderColor: 'blue',
+            backgroundColor: 'rgba(0,0,255,0.1)',
+            pointRadius: 0,
+            fill: true,
+            tension: 0.1
+          }]
+        },
+        options: {
+          scales: {
+            x: { display: true, title: { display: true, text: 'Час' } },
+            y: { display: true, title: { display: true, text: 'Ціна (USD)' } }
+          },
+          plugins: {
+            legend: { display: true }
+          },
+          animation: false,
+          responsive: true,
+          maintainAspectRatio: false,
+        }
+      });
+
+      const now = new Date();
+      lastUpdatedEl.textContent = `Оновлено: ${now.toLocaleTimeString()}`;
+
     } catch (error) {
       priceEl.textContent = 'Помилка завантаження даних';
       signalEl.textContent = '';
+      lastUpdatedEl.textContent = '';
+      console.error(error);
     }
   }
 
-  // Завантажити ціну при відкритті сторінки
-  fetchPrice();
+  // Оновлення кожні 30 секунд
+  fetchData();
+  setInterval(fetchData, 30000);
 </script>
 
 </body>
