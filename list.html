@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Список посилок</title>
+  <style>
+    body { font-family: sans-serif; padding: 10px; max-width: 480px; margin: auto; }
+    h1 { text-align: center; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { border: 1px solid #ccc; padding: 4px; text-align: left; }
+    th { background: #eee; }
+    button { margin: 10px 0; padding: 10px; width: 100%; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; }
+    button:hover { background: #218838; }
+  </style>
+</head>
+<body>
+
+<h1>Усі посилки</h1>
+<button id="exportPdf">Завантажити PDF</button>
+<table>
+  <thead>
+    <tr>
+      <th>№</th>
+      <th>Вага</th>
+      <th>К-сть</th>
+      <th>Обʼємна вага</th>
+      <th>Місто</th>
+      <th>НП</th>
+      <th>Телефон</th>
+      <th>Ціна</th>
+    </tr>
+  </thead>
+  <tbody id="parcelTable"></tbody>
+</table>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script>
+  const tableBody = document.getElementById('parcelTable');
+  const { jsPDF } = window.jspdf;
+
+  let db;
+  const request = indexedDB.open('ParcelsDB', 1);
+  request.onsuccess = event => {
+    db = event.target.result;
+    loadParcels();
+  };
+
+  function loadParcels() {
+    const tx = db.transaction(['parcels'], 'readonly');
+    const store = tx.objectStore('parcels');
+    const req = store.getAll();
+
+    req.onsuccess = () => {
+      const parcels = req.result;
+      if (parcels.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="8" style="text-align:center;">Немає посилок</td></tr>';
+        return;
+      }
+
+      tableBody.innerHTML = '';
+      parcels.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${p.number}</td>
+          <td>${p.weight.toFixed(2)}</td>
+          <td>${p.count}</td>
+          <td>${p.volumes.map(v => v.toFixed(2)).join(', ')}</td>
+          <td>${p.city}</td>
+          <td>${p.branch}</td>
+          <td>${p.phone}</td>
+          <td>${p.price.toFixed(2)}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    };
+  }
+
+  document.getElementById('exportPdf').addEventListener('click', () => {
+    const tx = db.transaction(['parcels'], 'readonly');
+    const store = tx.objectStore('parcels');
+    const req = store.getAll();
+
+    req.onsuccess = () => {
+      const data = req.result;
+      if (!data.length) return alert("Немає посилок для PDF");
+
+      const doc = new jsPDF();
+      doc.text("Список посилок", 14, 16);
+      doc.autoTable({
+        startY: 20,
+        head: [['№', 'Вага', 'К-сть', 'Обʼємна вага', 'Місто', 'НП', 'Телефон', '€']],
+        body: data.map(p => [
+          p.number,
+          p.weight.toFixed(2),
+          p.count,
+          p.volumes.map(v => v.toFixed(2)).join(', '),
+          p.city,
+          p.branch,
+          p.phone,
+          p.price.toFixed(2)
+        ]),
+        styles: { fontSize: 8 },
+        theme: 'striped'
+      });
+      doc.save('Посилки.pdf');
+    };
+  });
+</script>
+
+</body>
+</html>
