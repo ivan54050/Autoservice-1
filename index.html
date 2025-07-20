@@ -3,23 +3,40 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Мінімальна база посилок</title>
+<title>Міні база посилок з додатковими полями</title>
 <style>
   body { font-family: Arial, sans-serif; padding: 20px; }
-  form { margin-bottom: 20px; }
-  input, button { padding: 8px; margin: 5px 0; }
-  table { width: 100%; border-collapse: collapse; }
+  form { margin-bottom: 20px; display: grid; gap: 8px; max-width: 600px; }
+  input, button { padding: 8px; font-size: 1rem; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px;}
   th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
   button.delete { background: red; color: white; border: none; cursor: pointer; }
+  label { font-weight: bold; }
 </style>
 </head>
 <body>
 
-<h1>Мінімальна база посилок</h1>
+<h1>Міні база посилок</h1>
 
 <form id="parcelForm">
-  <input type="text" id="parcelNumber" placeholder="№ посилки" required />
-  <input type="number" id="weight" placeholder="Вага (кг)" step="0.01" min="0" required />
+  <label>№ посилки
+    <input type="text" id="parcelNumber" placeholder="№ посилки" required />
+  </label>
+  <label>Вага (кг)
+    <input type="number" id="weight" placeholder="Вага (кг)" step="0.01" min="0" required />
+  </label>
+  <label>Об’ємна вага (кг)
+    <input type="number" id="volumeWeight" placeholder="Об’ємна вага (кг)" step="0.01" min="0" required />
+  </label>
+  <label>Вартість (€)
+    <input type="number" id="priceEuro" placeholder="Вартість у євро" step="0.01" min="0" required />
+  </label>
+  <label>Номер телефону отримувача
+    <input type="tel" id="receiverPhone" placeholder="+380XXXXXXXXX" pattern="^\+?\d{7,15}$" required />
+  </label>
+  <label>Відділення Нової Пошти
+    <input type="text" id="npBranch" placeholder="Відділення Нової Пошти" required />
+  </label>
   <button type="submit">Додати посилку</button>
 </form>
 
@@ -28,6 +45,10 @@
     <tr>
       <th>№ посилки</th>
       <th>Вага (кг)</th>
+      <th>Об’ємна вага (кг)</th>
+      <th>Вартість (€)</th>
+      <th>Телефон отримувача</th>
+      <th>Відділення НП</th>
       <th>Дії</th>
     </tr>
   </thead>
@@ -47,23 +68,42 @@
       tr.innerHTML = `
         <td>${p.number}</td>
         <td>${p.weight.toFixed(2)}</td>
+        <td>${p.volumeWeight.toFixed(2)}</td>
+        <td>${p.priceEuro.toFixed(2)}</td>
+        <td>${p.receiverPhone}</td>
+        <td>${p.npBranch}</td>
         <td><button class="delete" data-index="${index}">Видалити</button></td>
       `;
       parcelList.appendChild(tr);
     });
   }
 
+  function validatePhone(phone) {
+    const phoneRegex = /^\+?\d{7,15}$/;
+    return phoneRegex.test(phone);
+  }
+
   form.addEventListener('submit', e => {
     e.preventDefault();
+
     const number = document.getElementById('parcelNumber').value.trim();
     const weight = parseFloat(document.getElementById('weight').value);
+    const volumeWeight = parseFloat(document.getElementById('volumeWeight').value);
+    const priceEuro = parseFloat(document.getElementById('priceEuro').value);
+    const receiverPhone = document.getElementById('receiverPhone').value.trim();
+    const npBranch = document.getElementById('npBranch').value.trim();
 
-    if (!number || isNaN(weight) || weight < 0) {
-      alert('Введіть коректні дані!');
+    if (!validatePhone(receiverPhone)) {
+      alert('Введіть коректний номер телефону у форматі +380XXXXXXXXX');
       return;
     }
 
-    parcels.push({ number, weight });
+    if(!number || isNaN(weight) || isNaN(volumeWeight) || isNaN(priceEuro) || !npBranch) {
+      alert('Заповніть усі поля коректно!');
+      return;
+    }
+
+    parcels.push({ number, weight, volumeWeight, priceEuro, receiverPhone, npBranch });
     renderTable();
     form.reset();
   });
