@@ -2,115 +2,166 @@
 <html lang="uk">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Посилки</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Міні база посилок</title>
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 10px; max-width: 480px; margin: auto; }
-    h1 { text-align: center; }
-    form { background: #f3f3f3; padding: 10px; border-radius: 8px; }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, textarea { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; }
-    button { margin-top: 10px; padding: 10px; width: 100%; border: none; background: #007bff; color: white; font-size: 16px; border-radius: 5px; }
-    button:hover { background: #0056b3; }
-    .volume-container label { font-weight: normal; }
-    .secondary { background: #28a745; margin-top: 5px; }
+    body {
+      font-family: sans-serif;
+      padding: 1rem;
+      max-width: 600px;
+      margin: auto;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 15px;
+      background: #007bff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 6px;
+      text-align: left;
+    }
   </style>
 </head>
 <body>
-<h1>Нова посилка</h1>
-<form id="form">
-  <label>Номер посилки *</label>
-  <input id="number" required />
 
-  <label>Вага (кг) *</label>
-  <input id="weight" type="number" step="0.01" required />
-
-  <label>Кількість місць *</label>
-  <input id="count" type="number" min="1" value="1" required />
-
-  <div id="volumes" class="volume-container"></div>
-
-  <label>Місто *</label>
-  <input id="city" required />
-
-  <label>Відділення Нової Пошти *</label>
-  <input id="branch" required />
-
-  <label>Телефон *</label>
-  <input id="phone" type="tel" pattern="\\+?\\d{7,15}" required />
-
-  <label>Ціна (€) *</label>
-  <input id="price" type="number" step="0.01" required />
-
-  <label>Опис</label>
-  <textarea id="desc" rows="2"></textarea>
-
+<h2>Додати посилку</h2>
+<form id="parcelForm">
+  <input id="number" placeholder="Номер посилки" required />
+  <input id="weight" type="number" step="0.01" placeholder="Вага (кг)" required />
+  <input id="places" type="number" min="1" placeholder="Кількість місць" required />
+  <div id="volumeContainer"></div>
+  <input id="city" placeholder="Місто" required />
+  <input id="branch" placeholder="Відділення НП" required />
+  <input id="phone" placeholder="Телефон (будь-який формат)" required />
+  <input id="price" type="number" step="0.01" placeholder="Ціна в €" required />
+  <textarea id="description" placeholder="Опис (необов’язково)"></textarea>
   <button type="submit">Зберегти</button>
-  <button type="button" class="secondary" onclick="window.open('list.html', '_blank')">Всі посилки</button>
 </form>
 
-<script>
-  const countInput = document.getElementById('count');
-  const volumesDiv = document.getElementById('volumes');
+<h2>Посилки</h2>
+<table id="parcelTable">
+  <thead>
+    <tr>
+      <th>Номер</th><th>Вага</th><th>Місця</th><th>Обʼємна вага</th><th>Місто</th><th>НП</th><th>Телефон</th><th>Ціна</th><th>Опис</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-  function renderVolumeInputs(count) {
-    volumesDiv.innerHTML = '';
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+(async () => {
+  const db = await (new Promise((resolve, reject) => {
+    const request = indexedDB.open("ParcelsDB", 1);
+    request.onupgradeneeded = e => {
+      const db = e.target.result;
+      db.createObjectStore("parcels", { keyPath: "number" });
+    };
+    request.onsuccess = e => resolve(e.target.result);
+    request.onerror = () => reject();
+  }));
+
+  const parcelForm = document.getElementById("parcelForm");
+  const volumeContainer = document.getElementById("volumeContainer");
+  const placesInput = document.getElementById("places");
+  const tableBody = document.querySelector("#parcelTable tbody");
+
+  function renderVolumeFields(count) {
+    volumeContainer.innerHTML = "";
     for (let i = 0; i < count; i++) {
-      const label = document.createElement('label');
-      label.textContent = `Обʼємна вага місця #${i + 1}`;
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.step = '0.01';
+      const input = document.createElement("input");
+      input.placeholder = `Обʼємна вага місця ${i + 1}`;
+      input.type = "number";
+      input.step = "0.01";
       input.required = true;
-      input.name = 'volume';
-      volumesDiv.appendChild(label);
-      volumesDiv.appendChild(input);
+      input.className = "volume";
+      volumeContainer.appendChild(input);
     }
   }
 
-  countInput.addEventListener('input', () => {
-    renderVolumeInputs(parseInt(countInput.value) || 1);
+  placesInput.addEventListener("input", () => {
+    const count = parseInt(placesInput.value || 0);
+    if (count > 0) renderVolumeFields(count);
   });
 
-  renderVolumeInputs(1); // Initial render
+  async function addParcel(data) {
+    const tx = db.transaction("parcels", "readwrite");
+    const store = tx.objectStore("parcels");
+    await store.put(data);
+    await tx.complete;
+  }
 
-  // IndexedDB setup
-  let db;
-  const request = indexedDB.open('ParcelsDB', 1);
-  request.onupgradeneeded = event => {
-    db = event.target.result;
-    db.createObjectStore('parcels', { keyPath: 'number' });
-  };
-  request.onsuccess = event => db = event.target.result;
+  async function getParcels() {
+    const tx = db.transaction("parcels", "readonly");
+    const store = tx.objectStore("parcels");
+    const request = store.getAll();
+    return new Promise(resolve => {
+      request.onsuccess = () => resolve(request.result);
+    });
+  }
 
-  document.getElementById('form').addEventListener('submit', e => {
-    e.preventDefault();
-
-    const number = document.getElementById('number').value.trim();
-    const weight = parseFloat(document.getElementById('weight').value);
-    const count = parseInt(countInput.value);
-    const volumes = Array.from(document.getElementsByName('volume')).map(i => parseFloat(i.value));
-    const city = document.getElementById('city').value.trim();
-    const branch = document.getElementById('branch').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const price = parseFloat(document.getElementById('price').value);
-    const desc = document.getElementById('desc').value.trim();
-
-    if (volumes.length !== count || volumes.some(isNaN)) {
-      alert('Заповніть всі обʼємні ваги коректно!');
-      return;
+  function renderParcels(parcels) {
+    tableBody.innerHTML = "";
+    for (const p of parcels) {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${p.number}</td>
+        <td>${p.weight}</td>
+        <td>${p.places}</td>
+        <td>${p.volume.join(", ")}</td>
+        <td>${p.city}</td>
+        <td>${p.branch}</td>
+        <td>${p.phone}</td>
+        <td>${p.price}</td>
+        <td>${p.description || ""}</td>
+      `;
+      tableBody.appendChild(row);
     }
+  }
 
-    const data = { number, weight, count, volumes, city, branch, phone, price, desc, createdAt: new Date().toISOString() };
-    const tx = db.transaction(['parcels'], 'readwrite');
-    const store = tx.objectStore('parcels');
-    store.put(data);
-    tx.oncomplete = () => {
-      alert('Посилку збережено!');
-      document.getElementById('form').reset();
-      renderVolumeInputs(1);
+  parcelForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const volumeElems = document.querySelectorAll(".volume");
+    const volume = Array.from(volumeElems).map(i => parseFloat(i.value));
+    const parcel = {
+      number: document.getElementById("number").value.trim(),
+      weight: parseFloat(document.getElementById("weight").value),
+      places: parseInt(placesInput.value),
+      volume,
+      city: document.getElementById("city").value.trim(),
+      branch: document.getElementById("branch").value.trim(),
+      phone: document.getElementById("phone").value.trim(),
+      price: parseFloat(document.getElementById("price").value),
+      description: document.getElementById("description").value.trim(),
+      createdAt: new Date().toISOString()
     };
+    await addParcel(parcel);
+    const parcels = await getParcels();
+    renderParcels(parcels);
+    parcelForm.reset();
+    volumeContainer.innerHTML = "";
   });
+
+  const existing = await getParcels();
+  renderParcels(existing);
+})();
 </script>
+
 </body>
 </html>
