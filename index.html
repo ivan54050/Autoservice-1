@@ -194,9 +194,34 @@
   </section>
 </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">// Функція створення PDF для одного рахунку
+function generateInvoicePDF(inv) {
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text('РАХУНОК', 105, 15, null, null, 'center');
+
+  doc.setFontSize(12);
+  doc.text(`Клієнт: ${inv.client}`, 14, 30);
+  doc.text(`Авто: ${inv.car}`, 14, 40);
+
+  doc.autoTable({
+    startY: 50,
+    head: [['Робота', 'Ціна, грн']],
+    body: [[inv.work, inv.price]],
+    theme: 'grid',
+    styles: { fontSize: 11 },
+    headStyles: { fillColor: [46, 134, 222] },
+  });
+
+  const total = parseFloat(inv.price).toFixed(2);
+  doc.text(`Загальна сума: ${total} грн`, 14, doc.lastAutoTable.finalY + 15);
+
+  doc.save(`invoice_${inv.client.replace(/\s+/g,'_')}.pdf`);
+}</script>
 <script>
   const { jsPDF } = window.jspdf;
+  
 
   // Вкладки
   const tabs = document.querySelectorAll('nav button.tab');
