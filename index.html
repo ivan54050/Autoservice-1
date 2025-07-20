@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>База посилок (JSON textarea)</title>
+<title>База посилок (JSON textarea + PDF)</title>
 <style>
   body { font-family: Arial, sans-serif; max-width: 480px; margin: 20px auto; padding: 0 10px; }
   h1 { text-align: center; margin-bottom: 15px; }
@@ -16,6 +16,8 @@
   th, td { padding: 8px 5px; border: 1px solid #ccc; text-align: left; font-size: 0.9rem; }
   th { background: #eee; }
   #jsonData { height: 120px; font-family: monospace; white-space: pre-wrap; }
+  .pdf-btn { width: auto; padding: 4px 8px; font-size: 0.85rem; background: #28a745; margin-top: 0; }
+  .pdf-btn:hover { background: #1e7e34; }
 </style>
 </head>
 <body>
@@ -66,6 +68,7 @@
       <th>Телефон</th>
       <th>Вартість (€)</th>
       <th>Опис</th>
+      <th>PDF</th>
     </tr>
   </thead>
   <tbody id="parcelList"></tbody>
@@ -75,7 +78,12 @@
 <textarea id="jsonData" placeholder="Тут буде JSON. Скопіюйте для збереження або вставте для завантаження"></textarea>
 <button id="loadJsonBtn">Завантажити JSON</button>
 
+<!-- jsPDF CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
+  const { jsPDF } = window.jspdf;
+
   const form = document.getElementById('parcelForm');
   const parcelList = document.getElementById('parcelList');
   const jsonData = document.getElementById('jsonData');
@@ -86,11 +94,11 @@
   function renderParcels() {
     parcelList.innerHTML = '';
     if (parcels.length === 0) {
-      parcelList.innerHTML = '<tr><td colspan="9" style="text-align:center;">Посилок немає</td></tr>';
+      parcelList.innerHTML = '<tr><td colspan="10" style="text-align:center;">Посилок немає</td></tr>';
       jsonData.value = '';
       return;
     }
-    parcels.forEach(p => {
+    parcels.forEach((p, index) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${p.number}</td>
@@ -102,6 +110,7 @@
         <td>${p.phone}</td>
         <td>${p.price.toFixed(2)}</td>
         <td>${p.description || ''}</td>
+        <td><button class="pdf-btn" data-index="${index}">PDF</button></td>
       `;
       parcelList.appendChild(tr);
     });
@@ -140,11 +149,17 @@
     form.reset();
   });
 
+  parcelList.addEventListener('click', (e) => {
+    if(e.target.classList.contains('pdf-btn')) {
+      const idx = e.target.dataset.index;
+      generatePdf(parcels[idx]);
+    }
+  });
+
   loadJsonBtn.addEventListener('click', () => {
     try {
       const imported = JSON.parse(jsonData.value);
       if (!Array.isArray(imported)) throw new Error('JSON має бути масивом.');
-      // Простенька валідація обʼєктів
       for (const p of imported) {
         if (typeof p.number !== 'string' || typeof p.city !== 'string') {
           alert('Некоректний формат даних у JSON.');
@@ -157,6 +172,32 @@
       alert('Помилка при завантаженні JSON: ' + err.message);
     }
   });
+
+  function generatePdf(parcel) {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text(`Посилка №${parcel.number}`, 10, 20);
+
+    const lines = [
+      ['Вага (кг)', parcel.weight.toFixed(2)],
+      ['Кількість місць', parcel.placesCount.toString()],
+      ['Обʼємна вага (кг)', parcel.volumeWeight.toFixed(2)],
+      ['Місто', parcel.city],
+      ['Відділення НП', parcel.npBranch],
+      ['Телефон', parcel.phone],
+      ['Вартість (€)', parcel.price.toFixed(2)],
+      ['Опис', parcel.description || ''],
+    ];
+
+    let y = 30;
+    doc.setFontSize(12);
+    lines.forEach(([label, value]) => {
+      doc.text(`${label}: ${value}`, 10, y);
+      y += 10;
+    });
+
+    doc.save(`Posylka_${parcel.number}.pdf`);
+  }
 
   renderParcels();
 </script>
