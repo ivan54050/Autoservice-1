@@ -5,120 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Посилки</title>
   <style>
-    body { font-family: sans-serif; margin: 0; padding: 10px; max-width: 480px; margin: auto; }
-    h1 { text-align: center; }
-    form { background: #f3f3f3; padding: 10px; border-radius: 8px; }
-    label { display: block; margin-top: 10px; font-weight: bold; }
-    input, textarea { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; border-radius: 4px; border: 1px solid #ccc; }
-    button { margin-top: 10px; padding: 10px; width: 100%; border: none; background: #007bff; color: white; font-size: 16px; border-radius: 5px; }
-    button:hover { background: #0056b3; }
-    .volume-container label { font-weight: normal; }
-    .secondary { background: #28a745; margin-top: 5px; }
+    body { font-family: sans-serif; margin:0; padding:10px; max-width:480px; margin:auto; }
+    h1 { text-align:center; }
+    form { background:#f3f3f3; padding:10px; border-radius:8px; }
+    label { display:block; margin-top:10px; font-weight:bold; }
+    input, textarea, button { width:100%; padding:8px; margin-top:4px; box-sizing:border-box; border-radius:4px; border:1px solid #ccc; }
+    button { background:#007bff; color:#fff; font-size:16px; border:none; margin-top:10px; }
+    button:hover { background:#0056b3; }
+    .volume-container label { font-weight:normal; }
+    .secondary { background:#28a745; }
   </style>
 </head>
 <body>
-<h1>Нова посилка</h1>
-<form id="form">
-  <label>Номер посилки *</label>
-  <input id="number" required />
+  <h1>Нова посилка</h1>
+  <form id="form">
+    <label>Номер посилки *</label><input id="number" required />
+    <label>Вага (кг) *</label><input id="weight" type="number" step="0.01" required />
+    <label>Кількість місць *</label><input id="count" type="number" min="1" value="1" required />
+    <div id="volumes" class="volume-container"></div>
+    <label>Місто *</label><input id="city" required />
+    <label>Відділення Нової Пошти *</label><input id="branch" required />
+    <label>Телефон *</label><input id="phone" />
+    <label>Ціна (€) *</label><input id="price" type="number" step="0.01" required />
+    <label>Опис</label><textarea id="desc" rows="2"></textarea>
+    <button type="submit">Зберегти</button>
+    <button type="button" class="secondary" onclick="window.open('list.html','_blank')">Всі посилки</button>
+  </form>
 
-  <label>Вага (кг) *</label>
-  <input id="weight" type="number" step="0.01" required />
+  <script>
+    const countInput = document.getElementById('count');
+    const volumesDiv = document.getElementById('volumes');
 
-  <label>Кількість місць *</label>
-  <input id="count" type="number" min="1" value="1" required />
-
-  <div id="volumes" class="volume-container"></div>
-
-  <label>Місто *</label>
-  <input id="city" required />
-
-  <label>Відділення Нової Пошти *</label>
-  <input id="branch" required />
-
-  <label>Телефон *</label>
-  <input id="phone" />
-
-  <label>Ціна (€) *</label>
-  <input id="price" type="number" step="0.01" required />
-
-  <label>Опис</label>
-  <textarea id="desc" rows="2"></textarea>
-
-  <button type="submit">Зберегти</button>
-  <button type="button" class="secondary" onclick="window.open('list.html', '_blank')">Всі посилки</button>
-</form>
-
-<script>
-  const countInput = document.getElementById('count');
-  const volumesDiv = document.getElementById('volumes');
-
-  function renderVolumeInputs(count) {
-    volumesDiv.innerHTML = '';
-    for (let i = 0; i < count; i++) {
-      const label = document.createElement('label');
-      label.textContent = `Обʼємна вага місця #${i + 1}`;
-      const input = document.createElement('input');
-      input.type = 'number';
-      input.step = '0.01';
-      input.required = true;
-      input.name = 'volume';
-      volumesDiv.appendChild(label);
-      volumesDiv.appendChild(input);
+    function renderVolumeInputs(count) {
+      volumesDiv.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const label = document.createElement('label');
+        label.textContent = `Обʼємна вага місця #${i+1}`;
+        const input = document.createElement('input');
+        input.type = 'number'; input.step = '0.01'; input.required = true; input.name = 'volume';
+        volumesDiv.appendChild(label);
+        volumesDiv.appendChild(input);
+      }
     }
-  }
 
-  countInput.addEventListener('input', () => {
-    renderVolumeInputs(parseInt(countInput.value) || 1);
-  });
+    countInput.addEventListener('input', () => {
+      renderVolumeInputs(parseInt(countInput.value) || 1);
+    });
 
-  renderVolumeInputs(1); // initial
+    renderVolumeInputs(1);
 
-  let db;
-  const request = indexedDB.open('ParcelsDB', 1);
-  request.onupgradeneeded = e => {
-    db = e.target.result;
-    if (!db.objectStoreNames.contains('parcels')) {
+    let db;
+    const req = indexedDB.open('ParcelsDB', 1);
+    req.onupgradeneeded = e => {
+      db = e.target.result;
       db.createObjectStore('parcels', { keyPath: 'number' });
-    }
-  };
-  request.onsuccess = e => db = e.target.result;
-  request.onerror = e => alert('IndexedDB помилка: ' + e.target.errorCode);
-
-  document.getElementById('form').addEventListener('submit', e => {
-    e.preventDefault();
-
-    const number = document.getElementById('number').value.trim();
-    const weight = parseFloat(document.getElementById('weight').value);
-    const count = parseInt(countInput.value);
-    const volumes = Array.from(document.getElementsByName('volume')).map(i => parseFloat(i.value));
-    const city = document.getElementById('city').value.trim();
-    const branch = document.getElementById('branch').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const price = parseFloat(document.getElementById('price').value);
-    const desc = document.getElementById('desc').value.trim();
-
-    if (volumes.length !== count || volumes.some(isNaN)) {
-      alert('Заповніть всі обʼємні ваги коректно!');
-      return;
-    }
-
-    const data = { number, weight, count, volumes, city, branch, phone, price, desc, createdAt: new Date().toISOString() };
-
-    const tx = db.transaction('parcels', 'readwrite');
-    const store = tx.objectStore('parcels');
-    const req = store.put(data);
-
-    req.onsuccess = () => {
-      alert('Посилку збережено!');
-      document.getElementById('form').reset();
-      renderVolumeInputs(1);
     };
-
-    req.onerror = () => {
-      alert('Помилка збереження. Можливо, номер вже існує.');
+    req.onsuccess = e => {
+      db = e.target.result;
+      setupForm();
     };
-  });
-</script>
+    req.onerror = () => alert('Помилка IndexedDB');
+
+    function setupForm() {
+      document.getElementById('form').addEventListener('submit', e => {
+        e.preventDefault();
+        const number = document.getElementById('number').value.trim();
+        const weight = parseFloat(document.getElementById('weight').value);
+        const count = parseInt(countInput.value);
+        const volumes = Array.from(document.getElementsByName('volume')).map(i => parseFloat(i.value));
+        const city = document.getElementById('city').value.trim();
+        const branch = document.getElementById('branch').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const price = parseFloat(document.getElementById('price').value);
+        const desc = document.getElementById('desc').value.trim();
+
+        if (volumes.length !== count || volumes.some(isNaN)) {
+          alert('Заповніть всі обʼємні ваги!');
+          return;
+        }
+
+        const data = { number, weight, count, volumes, city, branch, phone, price, desc, createdAt: new Date().toISOString() };
+        const tx = db.transaction('parcels', 'readwrite');
+        const store = tx.objectStore('parcels');
+        const request = store.put(data);
+
+        request.onsuccess = () => {
+          alert('Збережено 👍');
+          document.getElementById('form').reset();
+          renderVolumeInputs(1);
+        };
+        request.onerror = () => alert('Помилка: можливо дублікат номера');
+      });
+    }
+  </script>
 </body>
 </html>
