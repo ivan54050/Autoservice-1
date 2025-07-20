@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Автосервіс Онлайн</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #121212;
+      color: #f0f0f0;
+    }
+    header {
+      background: #000;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    nav {
+      display: flex;
+      background: #222;
+    }
+    nav button {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      background: #222;
+      color: #fff;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    nav button.active {
+      background: #000;
+      border-bottom: 3px solid #fff;
+    }
+    section {
+      display: none;
+      padding: 1rem 2rem;
+    }
+    section.active {
+      display: block;
+    }
+    form {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    input, textarea {
+      padding: 0.5rem;
+      background: #1e1e1e;
+      color: #fff;
+      border: 1px solid #555;
+      border-radius: 4px;
+    }
+    button.submit {
+      background: #000;
+      border: 1px solid #fff;
+      color: #fff;
+      padding: 0.75rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 0.75rem;
+      border: 1px solid #444;
+      text-align: left;
+    }
+    th {
+      background: #1a1a1a;
+    }
+  </style>
+</head>
+<body>
+  <header>Автосервіс Онлайн</header>
+  <nav>
+    <button class="tab active" data-tab="clients">Клієнти</button>
+    <button class="tab" data-tab="invoices">Рахунки</button>
+    <button class="tab" data-tab="acts">Акти</button>
+  </nav>
+
+  <section id="clients" class="active">
+    <h2>Клієнти</h2>
+    <form id="clientForm">
+      <input type="text" id="clientName" placeholder="Ім'я клієнта" required />
+      <input type="tel" id="clientPhone" placeholder="Телефон" />
+      <button type="submit" class="submit">Додати клієнта</button>
+    </form>
+    <table>
+      <thead>
+        <tr><th>Ім'я</th><th>Телефон</th></tr>
+      </thead>
+      <tbody id="clientList"></tbody>
+    </table>
+  </section>
+
+  <section id="invoices">
+    <h2>Рахунки</h2>
+    <form id="invoiceForm">
+      <input type="text" id="invoiceClient" placeholder="Ім'я клієнта" required />
+      <input type="text" id="invoiceCar" placeholder="Авто" required />
+      <textarea id="invoiceWork" placeholder="Роботи" required></textarea>
+      <input type="number" id="invoicePrice" placeholder="Ціна, грн" required />
+      <button type="submit" class="submit">Додати рахунок</button>
+    </form>
+    <table>
+      <thead>
+        <tr><th>Клієнт</th><th>Авто</th><th>Роботи</th><th>Ціна</th></tr>
+      </thead>
+      <tbody id="invoiceList"></tbody>
+    </table>
+  </section>
+
+  <section id="acts">
+    <h2>Акти виконаних робіт</h2>
+    <form id="actForm">
+      <input type="text" id="actClient" placeholder="Ім'я клієнта" required />
+      <input type="text" id="actCar" placeholder="Авто" required />
+      <textarea id="actWork" placeholder="Опис робіт" required></textarea>
+      <button type="submit" class="submit">Додати акт</button>
+    </form>
+    <table>
+      <thead>
+        <tr><th>Клієнт</th><th>Авто</th><th>Роботи</th></tr>
+      </thead>
+      <tbody id="actList"></tbody>
+    </table>
+  </section>
+
+<script>
+  // Вкладки
+  const tabs = document.querySelectorAll('.tab');
+  const sections = document.querySelectorAll('section');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      sections.forEach(s => s.classList.remove('active'));
+      document.getElementById(tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  // Дані
+  let clients = JSON.parse(localStorage.getItem('clients') || '[]');
+  let invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
+  let acts = JSON.parse(localStorage.getItem('acts') || '[]');
+
+  // Рендер таблиць
+  function renderClients() {
+    const tbody = document.getElementById('clientList');
+    tbody.innerHTML = '';
+    clients.forEach(client => {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${client.name}</td><td>${client.phone}</td>`;
+      tbody.appendChild(row);
+    });
+  }
+
+  function renderInvoices() {
+    const tbody = document.getElementById('invoiceList');
+    tbody.innerHTML = '';
+    invoices.forEach(inv => {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${inv.client}</td><td>${inv.car}</td><td>${inv.work}</td><td>${inv.price}</td>`;
+      tbody.appendChild(row);
+    });
+  }
+
+  function renderActs() {
+    const tbody = document.getElementById('actList');
+    tbody.innerHTML = '';
+    acts.forEach(act => {
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${act.client}</td><td>${act.car}</td><td>${act.work}</td>`;
+      tbody.appendChild(row);
+    });
+  }
+
+  // Форма: Клієнти
+  document.getElementById('clientForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('clientName').value;
+    const phone = document.getElementById('clientPhone').value;
+    clients.push({ name, phone });
+    localStorage.setItem('clients', JSON.stringify(clients));
+    renderClients();
+    e.target.reset();
+  });
+
+  // Форма: Рахунки
+  document.getElementById('invoiceForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const client = document.getElementById('invoiceClient').value;
+    const car = document.getElementById('invoiceCar').value;
+    const work = document.getElementById('invoiceWork').value;
+    const price = document.getElementById('invoicePrice').value;
+    invoices.push({ client, car, work, price });
+    localStorage.setItem('invoices', JSON.stringify(invoices));
+    renderInvoices();
+    e.target.reset();
+  });
+
+  // Форма: Акти
+  document.getElementById('actForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const client = document.getElementById('actClient').value;
+    const car = document.getElementById('actCar').value;
+    const work = document.getElementById('actWork').value;
+    acts.push({ client, car, work });
+    localStorage.setItem('acts', JSON.stringify(acts));
+    renderActs();
+    e.target.reset();
+  });
+
+  // Початковий рендер
+  renderClients();
+  renderInvoices();
+  renderActs();
+</script>
+</body>
+</html>
