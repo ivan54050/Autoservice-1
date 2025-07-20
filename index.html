@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Міні база посилок</title>
 <style>
-  body { font-family: Arial, sans-serif; max-width: 960px; margin: 20px auto; padding: 0 10px; background: #f9f9f9; color: #222; }
+  body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 0 10px; background: #f9f9f9; color: #222; }
   h1 { text-align: center; }
   form { background: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-  form label { display: block; margin-top: 10px; font-weight: bold; }
-  form input, form textarea { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; }
-  form button { margin-top: 15px; padding: 10px 20px; background: #007bff; border: none; color: white; font-weight: bold; border-radius: 4px; cursor: pointer; }
-  form button:hover { background: #0056b3; }
+  label { display: block; margin-top: 10px; font-weight: bold; }
+  input, textarea { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px; }
+  button { margin-top: 15px; padding: 10px 20px; background: #007bff; border: none; color: white; font-weight: bold; border-radius: 4px; cursor: pointer; }
+  button:hover { background: #0056b3; }
   table { width: 100%; border-collapse: collapse; background: white; }
   th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
   th { background: #eee; }
@@ -24,40 +24,40 @@
 
 <h1>Міні база посилок</h1>
 
-<form id="parcelForm" aria-label="Форма додавання або редагування посилки">
-  <input type="hidden" id="editIndex" value="" />
+<form id="parcelForm">
+  <input type="hidden" id="editIndex" />
   
-  <label for="number">№ посилки *</label>
-  <input type="text" id="number" required autocomplete="off" placeholder="Наприклад: ABC123456789" />
+  <label>№ посилки *</label>
+  <input type="text" id="number" required placeholder="Наприклад: ABC123456789" />
   
-  <label for="weight">Вага (кг) *</label>
-  <input type="number" id="weight" required min="0" step="0.01" placeholder="Вага посилки" />
+  <label>Вага (кг) *</label>
+  <input type="number" id="weight" required min="0" step="0.01" />
   
-  <label for="placesCount">Кількість місць *</label>
-  <input type="number" id="placesCount" required min="1" step="1" placeholder="Кількість місць" />
+  <label>Кількість місць *</label>
+  <input type="number" id="placesCount" required min="1" step="1" />
   
-  <label for="volumeWeight">Об’ємна вага (кг) *</label>
-  <input type="number" id="volumeWeight" required min="0" step="0.01" placeholder="Об’ємна вага" />
+  <label>Об’ємна вага (кг) *</label>
+  <input type="number" id="volumeWeight" required min="0" step="0.01" />
   
-  <label for="npBranch">Відділення Нової Пошти *</label>
-  <input type="text" id="npBranch" required autocomplete="off" placeholder="Назва або номер відділення" />
+  <label>Відділення Нової Пошти *</label>
+  <input type="text" id="npBranch" required placeholder="Назва або номер відділення" />
   
-  <label for="receiverPhone">Телефон отримувача *</label>
-  <input type="tel" id="receiverPhone" required autocomplete="off" placeholder="+380XXXXXXXXX" pattern="^\+?\d{7,15}$" title="Введіть коректний номер телефону" />
+  <label>Телефон отримувача *</label>
+  <input type="tel" id="receiverPhone" required placeholder="+380XXXXXXXXX" pattern="^\+?\d{7,15}$" />
   
-  <label for="city">Місто *</label>
-  <input type="text" id="city" required autocomplete="off" placeholder="Місто отримувача" />
+  <label>Місто *</label>
+  <input type="text" id="city" required placeholder="Місто отримувача" />
   
-  <label for="description">Опис</label>
+  <label>Опис</label>
   <textarea id="description" rows="2" placeholder="Додаткові деталі"></textarea>
   
-  <label for="priceEuro">Ціна (€) *</label>
-  <input type="number" id="priceEuro" required min="0" step="0.01" placeholder="Ціна в євро" />
+  <label>Ціна (€) *</label>
+  <input type="number" id="priceEuro" required min="0" step="0.01" />
   
   <button type="submit">Додати / Оновити посилку</button>
 </form>
 
-<table aria-label="Список посилок" id="parcelTable" role="grid">
+<table aria-label="Список посилок" id="parcelTable">
   <thead>
     <tr>
       <th>№ посилки</th>
@@ -76,14 +76,14 @@
 </table>
 
 <script>
-  const parcelForm = document.getElementById('parcelForm');
+  const form = document.getElementById('parcelForm');
   const parcelListEl = document.getElementById('parcelList');
 
   let parcels = JSON.parse(localStorage.getItem('parcels') || '[]');
 
   function renderTable() {
     parcelListEl.innerHTML = '';
-    if (parcels.length === 0) {
+    if(parcels.length === 0) {
       parcelListEl.innerHTML = '<tr><td colspan="10" style="text-align:center;">Посилок не знайдено</td></tr>';
       return;
     }
@@ -108,13 +108,12 @@
     });
   }
 
-  function saveParcels() {
+  function save() {
     localStorage.setItem('parcels', JSON.stringify(parcels));
   }
 
-  parcelForm.addEventListener('submit', (e) => {
+  form.addEventListener('submit', e => {
     e.preventDefault();
-
     const number = document.getElementById('number').value.trim();
     const weight = parseFloat(document.getElementById('weight').value);
     const placesCount = parseInt(document.getElementById('placesCount').value);
@@ -127,48 +126,36 @@
 
     const editIndex = document.getElementById('editIndex').value;
 
-    // Валідація телефону
     const phoneRegex = /^\+?\d{7,15}$/;
     if (!phoneRegex.test(receiverPhone)) {
       alert('Введіть коректний номер телефону у форматі +380XXXXXXXXX');
       return;
     }
 
-    // Перевірка унікальності номера (якщо додаємо нову)
-    if (editIndex === '') {
-      if (parcels.some(p => p.number === number)) {
+    if(editIndex === '') {
+      if(parcels.some(p => p.number === number)) {
         alert('Посилка з таким номером уже існує!');
         return;
       }
+      parcels.push({number, weight, placesCount, volumeWeight, npBranch, receiverPhone, city, description, priceEuro});
     } else {
-      // Якщо редагуємо, номер може залишатися таким самим
-      // Але не можна змінити на номер, що вже існує в іншого
-      if (parcels.some((p, idx) => p.number === number && idx !== +editIndex)) {
+      if(parcels.some((p, idx) => p.number === number && idx !== +editIndex)) {
         alert('Посилка з таким номером уже існує!');
         return;
       }
+      parcels[+editIndex] = {number, weight, placesCount, volumeWeight, npBranch, receiverPhone, city, description, priceEuro};
     }
-
-    const parcelData = { number, weight, placesCount, volumeWeight, npBranch, receiverPhone, city, description, priceEuro };
-
-    if (editIndex === '') {
-      parcels.push(parcelData);
-    } else {
-      parcels[+editIndex] = parcelData;
-    }
-
-    saveParcels();
+    save();
     renderTable();
-
-    parcelForm.reset();
+    form.reset();
     document.getElementById('editIndex').value = '';
   });
 
-  parcelListEl.addEventListener('click', (e) => {
-    if (e.target.classList.contains('edit')) {
-      const index = e.target.dataset.index;
-      const p = parcels[index];
-      document.getElementById('editIndex').value = index;
+  parcelListEl.addEventListener('click', e => {
+    if(e.target.classList.contains('edit')) {
+      const idx = e.target.dataset.index;
+      const p = parcels[idx];
+      document.getElementById('editIndex').value = idx;
       document.getElementById('number').value = p.number;
       document.getElementById('weight').value = p.weight;
       document.getElementById('placesCount').value = p.placesCount;
@@ -178,19 +165,18 @@
       document.getElementById('city').value = p.city;
       document.getElementById('description').value = p.description;
       document.getElementById('priceEuro').value = p.priceEuro;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({top: 0, behavior: 'smooth'});
     }
-    if (e.target.classList.contains('delete')) {
-      const index = e.target.dataset.index;
-      if (confirm(`Видалити посилку №${parcels[index].number}?`)) {
-        parcels.splice(index, 1);
-        saveParcels();
+    if(e.target.classList.contains('delete')) {
+      const idx = e.target.dataset.index;
+      if(confirm(`Видалити посилку №${parcels[idx].number}?`)) {
+        parcels.splice(idx,1);
+        save();
         renderTable();
       }
     }
   });
 
-  // Початковий рендер
   renderTable();
 </script>
 
