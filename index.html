@@ -1,162 +1,122 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Розширений Крипто-Бот</title>
-<style>
-  body { font-family: Arial, sans-serif; max-width: 700px; margin: 30px auto; text-align: center; }
-  h1 { margin-bottom: 20px; }
-  #price { font-size: 2em; margin: 10px 0; }
-  #signal { font-weight: bold; font-size: 1.3em; margin: 15px 0; }
-  button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin-bottom: 20px; }
-  canvas { max-width: 100%; }
-  #lastUpdated { font-size: 0.9em; color: #555; margin-bottom: 10px;}
-</style>
+  <meta charset="UTF-8" />
+  <title>Додаток перевізника</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 0 15px;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    form {
+      margin-bottom: 20px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #3498db;
+      border: none;
+      color: white;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    li {
+      background: #ecf0f1;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .completed {
+      text-decoration: line-through;
+      color: #27ae60;
+    }
+  </style>
 </head>
 <body>
 
-<h1>Розширений Крипто-Бот (BTC/USD)</h1>
+  <h1>Додаток перевізника</h1>
 
-<div id="price">Завантаження...</div>
-<div id="signal">Чекаємо на дані...</div>
-<div id="lastUpdated"></div>
-<button onclick="fetchData()">Оновити зараз</button>
+  <form id="orderForm">
+    <input type="text" id="from" placeholder="Адреса відправлення" required />
+    <input type="text" id="to" placeholder="Адреса доставки" required />
+    <button type="submit">Додати замовлення</button>
+  </form>
 
-<canvas id="priceChart" width="700" height="350"></canvas>
+  <ul id="ordersList"></ul>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const orderForm = document.getElementById('orderForm');
+    const ordersList = document.getElementById('ordersList');
 
-<script>
-  const priceEl = document.getElementById('price');
-  const signalEl = document.getElementById('signal');
-  const lastUpdatedEl = document.getElementById('lastUpdated');
-  const ctx = document.getElementById('priceChart').getContext('2d');
-  let chart;
+    let orders = [];
 
-  // Функція для розрахунку RSI на основі масиву цін
-  function calculateRSI(closes, period = 14) {
-    let gains = 0;
-    let losses = 0;
-    let rsiArray = [];
+    function renderOrders() {
+      ordersList.innerHTML = '';
 
-    for (let i = 1; i < closes.length; i++) {
-      let change = closes[i] - closes[i - 1];
-      gains += change > 0 ? change : 0;
-      losses += change < 0 ? Math.abs(change) : 0;
-      if (i >= period) break;
-    }
+      orders.forEach((order, index) => {
+        const li = document.createElement('li');
+        li.className = order.completed ? 'completed' : '';
 
-    let averageGain = gains / period;
-    let averageLoss = losses / period;
+        li.innerHTML = `
+          <div>
+            <strong>Від:</strong> ${order.from}<br />
+            <strong>До:</strong> ${order.to}<br />
+            <strong>Статус:</strong> ${order.completed ? 'Виконано' : 'В процесі'}
+          </div>
+          <button onclick="toggleCompleted(${index})">
+            ${order.completed ? 'Позначити як не виконано' : 'Позначити як виконано'}
+          </button>
+        `;
 
-    rsiArray[period] = 100 - (100 / (1 + (averageGain / averageLoss)));
-
-    for (let i = period + 1; i < closes.length; i++) {
-      let change = closes[i] - closes[i - 1];
-      let gain = change > 0 ? change : 0;
-      let loss = change < 0 ? Math.abs(change) : 0;
-
-      averageGain = ((averageGain * (period - 1)) + gain) / period;
-      averageLoss = ((averageLoss * (period - 1)) + loss) / period;
-
-      let rs = averageLoss === 0 ? 100 : averageGain / averageLoss;
-      rsiArray[i] = 100 - (100 / (1 + rs));
-    }
-
-    return rsiArray;
-  }
-
-  async function fetchData() {
-    priceEl.textContent = 'Завантаження...';
-    signalEl.textContent = '...';
-    lastUpdatedEl.textContent = '';
-
-    try {
-      // Завантажуємо поточну ціну BTC/USD
-      const priceRes = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-      const priceData = await priceRes.json();
-      const currentPrice = priceData.bitcoin.usd;
-
-      priceEl.textContent = `Ціна BTC: $${currentPrice.toLocaleString()}`;
-
-      // Завантажуємо історію цін (24 години, 1хв інтервал)
-      const chartRes = await fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=1&interval=minute');
-      const chartData = await chartRes.json();
-
-      const prices = chartData.prices; // масив [timestamp, price]
-
-      // Витягуємо час і ціни
-      const labels = prices.map(p => {
-        const date = new Date(p[0]);
-        return date.getHours() + ':' + String(date.getMinutes()).padStart(2, '0');
+        ordersList.appendChild(li);
       });
+    }
 
-      const closePrices = prices.map(p => p[1]);
+    function toggleCompleted(index) {
+      orders[index].completed = !orders[index].completed;
+      renderOrders();
+    }
 
-      // Обчислюємо RSI
-      const rsiValues = calculateRSI(closePrices);
-      const lastRSI = rsiValues[rsiValues.length - 1];
+    orderForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const from = document.getElementById('from').value.trim();
+      const to = document.getElementById('to').value.trim();
 
-      // Виводимо рекомендацію
-      if (lastRSI < 30) {
-        signalEl.textContent = `RSI: ${lastRSI.toFixed(2)} — Купувати (перепродано)`;
-        signalEl.style.color = 'green';
-      } else if (lastRSI > 70) {
-        signalEl.textContent = `RSI: ${lastRSI.toFixed(2)} — Продавати (перекуплено)`;
-        signalEl.style.color = 'red';
-      } else {
-        signalEl.textContent = `RSI: ${lastRSI.toFixed(2)} — Тримати`;
-        signalEl.style.color = 'orange';
+      if (!from || !to) {
+        alert('Будь ласка, заповніть обидва поля');
+        return;
       }
 
-      // Виводимо графік ціни
-      if (chart) {
-        chart.destroy();
-      }
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Ціна BTC (USD)',
-            data: closePrices,
-            borderColor: 'blue',
-            backgroundColor: 'rgba(0,0,255,0.1)',
-            pointRadius: 0,
-            fill: true,
-            tension: 0.1
-          }]
-        },
-        options: {
-          scales: {
-            x: { display: true, title: { display: true, text: 'Час' } },
-            y: { display: true, title: { display: true, text: 'Ціна (USD)' } }
-          },
-          plugins: {
-            legend: { display: true }
-          },
-          animation: false,
-          responsive: true,
-          maintainAspectRatio: false,
-        }
-      });
+      orders.push({ from, to, completed: false });
 
-      const now = new Date();
-      lastUpdatedEl.textContent = `Оновлено: ${now.toLocaleTimeString()}`;
+      orderForm.reset();
+      renderOrders();
+    });
 
-    } catch (error) {
-      priceEl.textContent = 'Помилка завантаження даних';
-      signalEl.textContent = '';
-      lastUpdatedEl.textContent = '';
-      console.error(error);
-    }
-  }
-
-  // Оновлення кожні 30 секунд
-  fetchData();
-  setInterval(fetchData, 30000);
-</script>
+    // Для доступності функції у HTML кнопках
+    window.toggleCompleted = toggleCompleted;
+  </script>
 
 </body>
 </html>
