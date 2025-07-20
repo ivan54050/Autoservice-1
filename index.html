@@ -174,31 +174,38 @@
   });
 
   function generatePdf(parcel) {
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text(`Посилка №${parcel.number}`, 10, 20);
+  const doc = new jsPDF();
 
-    const lines = [
-      ['Вага (кг)', parcel.weight.toFixed(2)],
-      ['Кількість місць', parcel.placesCount.toString()],
-      ['Обʼємна вага (кг)', parcel.volumeWeight.toFixed(2)],
-      ['Місто', parcel.city],
-      ['Відділення НП', parcel.npBranch],
-      ['Телефон', parcel.phone],
-      ['Вартість (€)', parcel.price.toFixed(2)],
-      ['Опис', parcel.description || ''],
-    ];
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text(`Посилка №${parcel.number}`, 14, 20);
 
-    let y = 30;
-    doc.setFontSize(12);
-    lines.forEach(([label, value]) => {
-      doc.text(`${label}: ${value}`, 10, y);
-      y += 10;
-    });
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "normal");
 
-    doc.save(`Posylka_${parcel.number}.pdf`);
-  }
+  const lineHeight = 8;
+  let y = 30;
 
+  const addLine = (label, value) => {
+    doc.setFont(undefined, "bold");
+    doc.text(`${label}:`, 14, y);
+    doc.setFont(undefined, "normal");
+    const splitText = doc.splitTextToSize(value, 180);
+    doc.text(splitText, 60, y);
+    y += lineHeight * splitText.length;
+  };
+
+  addLine('Вага (кг)', parcel.weight.toFixed(2));
+  addLine('Кількість місць', parcel.placesCount.toString());
+  addLine('Обʼємна вага (кг)', parcel.volumeWeight.toFixed(2));
+  addLine('Місто', parcel.city);
+  addLine('Відділення НП', parcel.npBranch);
+  addLine('Телефон', parcel.phone);
+  addLine('Вартість (€)', parcel.price.toFixed(2));
+  addLine('Опис', parcel.description || '-');
+
+  doc.save(`Posylka_${parcel.number}.pdf`);
+}
   renderParcels();
 </script>
 
