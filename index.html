@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Автосервіс - Приклад стилю RemOnline</title>
+<title>Автосервіс Онлайн</title>
+
 <style>
+  /* Загальні стилі */
   body {
-    margin: 0; padding: 0;
+    margin:0; padding:0;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     background: #f7f9fc;
     color: #222;
@@ -17,6 +19,7 @@
     padding: 1.2rem 2rem;
     font-size: 1.8rem;
     font-weight: 600;
+    text-align: center;
   }
   nav {
     display: flex;
@@ -55,7 +58,7 @@
     gap: 1rem;
     margin-bottom: 2rem;
   }
-  input, textarea {
+  input, select, textarea {
     padding: 0.7rem 1rem;
     font-size: 1rem;
     border: 1px solid #ddd;
@@ -73,6 +76,7 @@
     border-radius: 6px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    justify-self: start;
   }
   button.submit:hover {
     background: #1b4f72;
@@ -85,6 +89,7 @@
     padding: 0.8rem 1rem;
     border-bottom: 1px solid #eee;
     text-align: left;
+    vertical-align: middle;
   }
   th {
     background: #f1f5f9;
@@ -104,6 +109,20 @@
   td button.delete:hover {
     background: #c0392b;
   }
+  td button.pdf-btn {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 0.3rem 0.7rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-right: 0.3rem;
+    transition: background-color 0.3s ease;
+  }
+  td button.pdf-btn:hover {
+    background: #1e7e34;
+  }
   .actions {
     margin-bottom: 2rem;
   }
@@ -121,7 +140,11 @@
   .actions button:hover {
     background: #1b4f72;
   }
+  label {
+    font-weight: 600;
+  }
 </style>
+
 </head>
 <body>
 
@@ -129,11 +152,14 @@
 
 <nav>
   <button class="tab active" data-tab="clients">Клієнти</button>
+  <button class="tab" data-tab="cars">Автомобілі</button>
+  <button class="tab" data-tab="parts">Запчастини</button>
   <button class="tab" data-tab="invoices">Рахунки</button>
   <button class="tab" data-tab="acts">Акти</button>
 </nav>
 
 <main>
+  <!-- Клієнти -->
   <section id="clients" class="active">
     <div class="actions">
       <button id="importClientsBtn">Імпорт клієнтів</button>
@@ -145,42 +171,88 @@
       <button type="submit" class="submit">Додати клієнта</button>
     </form>
     <table>
-      <thead>
-        <tr><th>Ім'я</th><th>Телефон</th><th>Видалити</th></tr>
-      </thead>
+      <thead><tr><th>Ім'я</th><th>Телефон</th><th>Видалити</th></tr></thead>
       <tbody id="clientList"></tbody>
     </table>
   </section>
 
+  <!-- Автомобілі -->
+  <section id="cars">
+    <div class="actions">
+      <button id="importCarsBtn">Імпорт авто</button>
+      <button id="exportCarsBtn">Експорт авто</button>
+    </div>
+    <form id="carForm">
+      <input type="text" id="carClient" placeholder="Власник (клієнт)" required list="clientNames"/>
+      <input type="text" id="carModel" placeholder="Модель автомобіля" required />
+      <input type="text" id="carVIN" placeholder="VIN (опційно)" />
+      <button type="submit" class="submit">Додати автомобіль</button>
+    </form>
+    <datalist id="clientNames"></datalist>
+    <table>
+      <thead><tr><th>Власник</th><th>Модель</th><th>VIN</th><th>Видалити</th></tr></thead>
+      <tbody id="carList"></tbody>
+    </table>
+  </section>
+
+  <!-- Запчастини -->
+  <section id="parts">
+    <div class="actions">
+      <button id="importPartsBtn">Імпорт запчастин</button>
+      <button id="exportPartsBtn">Експорт запчастин</button>
+    </div>
+    <form id="partForm">
+      <input type="text" id="partName" placeholder="Назва запчастини" required />
+      <input type="number" id="partPrice" placeholder="Ціна, грн" required min="0" step="0.01"/>
+      <button type="submit" class="submit">Додати запчастину</button>
+    </form>
+    <table>
+      <thead><tr><th>Назва</th><th>Ціна, грн</th><th>Видалити</th></tr></thead>
+      <tbody id="partList"></tbody>
+    </table>
+  </section>
+
+  <!-- Рахунки -->
   <section id="invoices">
     <div class="actions">
       <button id="importInvoicesBtn">Імпорт рахунків</button>
       <button id="exportInvoicesBtn">Експорт рахунків</button>
-      <button id="printInvoicesBtn">Друк</button>
     </div>
     <form id="invoiceForm">
-      <input type="text" id="invoiceClient" placeholder="Ім'я клієнта" required />
-      <input type="text" id="invoiceCar" placeholder="Авто" required />
-      <textarea id="invoiceWork" placeholder="Роботи" required></textarea>
-      <input type="number" id="invoicePrice" placeholder="Ціна, грн" required min="0" step="0.01" />
+      <label for="invoiceClient">Клієнт</label>
+      <input type="text" id="invoiceClient" required list="clientNames" />
+      <label for="invoiceCar">Автомобіль</label>
+      <select id="invoiceCar" required></select>
+      <label for="invoiceParts">Запчастини (утримуй Ctrl або Cmd для мультивибору)</label>
+      <select id="invoiceParts" multiple size="5"></select>
+      <label for="invoiceWork">Роботи</label>
+      <textarea id="invoiceWork" placeholder="Опис робіт" required></textarea>
       <button type="submit" class="submit">Додати рахунок</button>
     </form>
     <table>
       <thead>
-        <tr><th>Клієнт</th><th>Авто</th><th>Роботи</th><th>Ціна</th><th>Видалити</th></tr>
+        <tr>
+          <th>Клієнт</th>
+          <th>Автомобіль</th>
+          <th>Запчастини</th>
+          <th>Роботи</th>
+          <th>Сума, грн</th>
+          <th>PDF</th>
+          <th>Видалити</th>
+        </tr>
       </thead>
       <tbody id="invoiceList"></tbody>
     </table>
   </section>
 
+  <!-- Акти -->
   <section id="acts">
     <div class="actions">
       <button id="importActsBtn">Імпорт актів</button>
       <button id="exportActsBtn">Експорт актів</button>
-      <button id="printActsBtn">Друк</button>
     </div>
     <form id="actForm">
-      <input type="text" id="actClient" placeholder="Ім'я клієнта" required />
+      <input type="text" id="actClient" placeholder="Ім'я клієнта" required list="clientNames" />
       <input type="text" id="actCar" placeholder="Авто" required />
       <textarea id="actWork" placeholder="Опис робіт" required></textarea>
       <button type="submit" class="submit">Додати акт</button>
@@ -194,34 +266,11 @@
   </section>
 </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">// Функція створення PDF для одного рахунку
-function generateInvoicePDF(inv) {
-  const doc = new jsPDF();
-
-  doc.setFontSize(18);
-  doc.text('РАХУНОК', 105, 15, null, null, 'center');
-
-  doc.setFontSize(12);
-  doc.text(`Клієнт: ${inv.client}`, 14, 30);
-  doc.text(`Авто: ${inv.car}`, 14, 40);
-
-  doc.autoTable({
-    startY: 50,
-    head: [['Робота', 'Ціна, грн']],
-    body: [[inv.work, inv.price]],
-    theme: 'grid',
-    styles: { fontSize: 11 },
-    headStyles: { fillColor: [46, 134, 222] },
-  });
-
-  const total = parseFloat(inv.price).toFixed(2);
-  doc.text(`Загальна сума: ${total} грн`, 14, doc.lastAutoTable.finalY + 15);
-
-  doc.save(`invoice_${inv.client.replace(/\s+/g,'_')}.pdf`);
-}</script>
+<!-- Скрипти -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script>
   const { jsPDF } = window.jspdf;
-  
 
   // Вкладки
   const tabs = document.querySelectorAll('nav button.tab');
@@ -235,43 +284,111 @@ function generateInvoicePDF(inv) {
     });
   });
 
-  // Дані в localStorage
+  // Дані з localStorage
   let clients = JSON.parse(localStorage.getItem('clients') || '[]');
+  let cars = JSON.parse(localStorage.getItem('cars') || '[]');
+  let parts = JSON.parse(localStorage.getItem('parts') || '[]');
   let invoices = JSON.parse(localStorage.getItem('invoices') || '[]');
   let acts = JSON.parse(localStorage.getItem('acts') || '[]');
 
-  // Рендер функції
-  function renderClients() {
+  // --- Рендер функції ---
+
+  function updateClientDatalist(){
+    const datalist = document.getElementById('clientNames');
+    datalist.innerHTML = '';
+    clients.forEach(c => {
+      const option = document.createElement('option');
+      option.value = c.name;
+      datalist.appendChild(option);
+    });
+  }
+
+  function renderClients(){
     const tbody = document.getElementById('clientList');
     tbody.innerHTML = '';
-    clients.forEach((c, i) => {
+    clients.forEach((c,i) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${c.name}</td><td>${c.phone}</td><td><button class="delete" data-index="${i}" data-type="client">×</button></td>`;
+      tr.innerHTML = `<td>${c.name}</td><td>${c.phone || ''}</td><td><button class="delete" data-type="client" data-index="${i}">×</button></td>`;
       tbody.appendChild(tr);
+    });
+    updateClientDatalist();
+  }
+
+  function renderCars(){
+    const tbody = document.getElementById('carList');
+    tbody.innerHTML = '';
+    cars.forEach((c,i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${c.owner}</td><td>${c.model}</td><td>${c.vin || ''}</td><td><button class="delete" data-type="car" data-index="${i}">×</button></td>`;
+      tbody.appendChild(tr);
+    });
+
+    // Оновити селект авто в рахунках
+    const sel = document.getElementById('invoiceCar');
+    sel.innerHTML = '';
+    cars.forEach((c,i) => {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `${c.model} (власник: ${c.owner})`;
+      sel.appendChild(option);
     });
   }
 
-  function renderInvoices() {
+  function renderParts(){
+    const tbody = document.getElementById('partList');
+    tbody.innerHTML = '';
+    parts.forEach((p,i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${p.name}</td><td>${p.price}</td><td><button class="delete" data-type="part" data-index="${i}">×</button></td>`;
+      tbody.appendChild(tr);
+    });
+
+    // Оновити селект запчастин в рахунках
+    const sel = document.getElementById('invoiceParts');
+    sel.innerHTML = '';
+    parts.forEach((p,i) => {
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = `${p.name} — ${p.price} грн`;
+      sel.appendChild(option);
+    });
+  }
+
+  function renderInvoices(){
     const tbody = document.getElementById('invoiceList');
     tbody.innerHTML = '';
-    invoices.forEach((inv, i) => {
+    invoices.forEach((inv,i) => {
+      const selectedParts = inv.parts.map(idx => parts[idx]?.name || '').filter(n => n).join(', ');
+      const totalPrice = inv.parts.reduce((sum, idx) => sum + (parts[idx]?.price || 0), 0) + parseFloat(inv.workPrice || 0);
+      const workText = inv.work || '';
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${inv.client}</td><td>${inv.car}</td><td>${inv.work}</td><td>${inv.price}</td><td><button class="delete" data-index="${i}" data-type="invoice">×</button></td>`;
+      tr.innerHTML = `
+        <td>${inv.client}</td>
+        <td>${cars[inv.car]?.model || ''}</td>
+        <td>${selectedParts}</td>
+        <td>${workText}</td>
+        <td>${totalPrice.toFixed(2)}</td>
+        <td>
+          <button class="pdf-btn" data-index="${i}">PDF</button>
+          <button class="delete" data-type="invoice" data-index="${i}">×</button>
+        </td>`;
       tbody.appendChild(tr);
     });
   }
 
-  function renderActs() {
+  function renderActs(){
     const tbody = document.getElementById('actList');
     tbody.innerHTML = '';
-    acts.forEach((act, i) => {
+    acts.forEach((act,i) => {
       const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${act.client}</td><td>${act.car}</td><td>${act.work}</td><td><button class="delete" data-index="${i}" data-type="act">×</button></td>`;
+      tr.innerHTML = `<td>${act.client}</td><td>${act.car}</td><td>${act.work}</td><td><button class="delete" data-type="act" data-index="${i}">×</button></td>`;
       tbody.appendChild(tr);
     });
   }
 
-  // Додати клієнта
+  // --- Додати записи ---
+
+  // Клієнти
   document.getElementById('clientForm').addEventListener('submit', e => {
     e.preventDefault();
     const name = document.getElementById('clientName').value.trim();
@@ -283,142 +400,37 @@ function generateInvoicePDF(inv) {
     e.target.reset();
   });
 
-  // Додати рахунок
+  // Автомобілі
+  document.getElementById('carForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const owner = document.getElementById('carClient').value.trim();
+    const model = document.getElementById('carModel').value.trim();
+    const vin = document.getElementById('carVIN').value.trim();
+    if(!owner || !model) return alert('Вкажіть власника та модель авто');
+    // Перевірка, чи існує клієнт
+    if(!clients.find(c => c.name === owner)) {
+      alert('Клієнта з таким ім\'ям не знайдено. Спочатку додайте клієнта.');
+      return;
+    }
+    cars.push({owner, model, vin});
+    localStorage.setItem('cars', JSON.stringify(cars));
+    renderCars();
+    e.target.reset();
+  });
+
+  // Запчастини
+  document.getElementById('partForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name = document.getElementById('partName').value.trim();
+    const price = parseFloat(document.getElementById('partPrice').value);
+    if(!name || isNaN(price)) return alert('Вкажіть назву та ціну запчастини');
+    parts.push({name, price});
+    localStorage.setItem('parts', JSON.stringify(parts));
+    renderParts();
+    e.target.reset();
+  });
+
+  // Рахунки
   document.getElementById('invoiceForm').addEventListener('submit', e => {
     e.preventDefault();
-    const client = document.getElementById('invoiceClient').value.trim();
-    const car = document.getElementById('invoiceCar').value.trim();
-    const work = document.getElementById('invoiceWork').value.trim();
-    const price = parseFloat(document.getElementById('invoicePrice').value);
-    if(!client || !car || !work || isNaN(price)) return alert('Заповніть всі поля правильно');
-    invoices.push({client, car, work, price: price.toFixed(2)});
-    localStorage.setItem('invoices', JSON.stringify(invoices));
-    renderInvoices();
-    e.target.reset();
-  });
-
-  // Додати акт
-  document.getElementById('actForm').addEventListener('submit', e => {
-    e.preventDefault();
-    const client = document.getElementById('actClient').value.trim();
-    const car = document.getElementById('actCar').value.trim();
-    const work = document.getElementById('actWork').value.trim();
-    if(!client || !car || !work) return alert('Заповніть всі поля');
-    acts.push({client, car, work});
-    localStorage.setItem('acts', JSON.stringify(acts));
-    renderActs();
-    e.target.reset();
-  });
-
-  // Видалення
-  document.body.addEventListener('click', e => {
-    if(e.target.classList.contains('delete')){
-      const i = parseInt(e.target.dataset.index);
-      const type = e.target.dataset.type;
-      if(confirm('Ви впевнені, що хочете видалити?')){
-        if(type === 'client'){
-          clients.splice(i,1);
-          localStorage.setItem('clients', JSON.stringify(clients));
-          renderClients();
-        } else if(type === 'invoice'){
-          invoices.splice(i,1);
-          localStorage.setItem('invoices', JSON.stringify(invoices));
-          renderInvoices();
-        } else if(type === 'act'){
-          acts.splice(i,1);
-          localStorage.setItem('acts', JSON.stringify(acts));
-          renderActs();
-        }
-      }
-    }
-  });
-
-  // Імпорт / Експорт JSON
-  function downloadJSON(data, filename){
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-  function uploadJSON(callback){
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json,application/json';
-    input.onchange = () => {
-      if(input.files.length > 0){
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = () => {
-          try {
-            const json = JSON.parse(reader.result);
-            callback(json);
-          } catch {
-            alert('Некоректний JSON файл');
-          }
-        }
-        reader.readAsText(file);
-      }
-    };
-    input.click();
-  }
-
-  // Кнопки Імпорту/Експорту
-
-  document.getElementById('exportClientsBtn').onclick = () => downloadJSON(clients, 'clients.json');
-  document.getElementById('exportInvoicesBtn').onclick = () => downloadJSON(invoices, 'invoices.json');
-  document.getElementById('exportActsBtn').onclick = () => downloadJSON(acts, 'acts.json');
-
-  document.getElementById('importClientsBtn').onclick = () => uploadJSON(data => {
-    if(Array.isArray(data)) {
-      clients = data;
-      localStorage.setItem('clients', JSON.stringify(clients));
-      renderClients();
-    } else alert('JSON повинен бути масивом об\'єктів');
-  });
-  document.getElementById('importInvoicesBtn').onclick = () => uploadJSON(data => {
-    if(Array.isArray(data)) {
-      invoices = data;
-      localStorage.setItem('invoices', JSON.stringify(invoices));
-      renderInvoices();
-    } else alert('JSON повинен бути масивом об\'єктів');
-  });
-  document.getElementById('importActsBtn').onclick = () => uploadJSON(data => {
-    if(Array.isArray(data)) {
-      acts = data;
-      localStorage.setItem('acts', JSON.stringify(acts));
-      renderActs();
-    } else alert('JSON повинен бути масивом об\'єктів');
-  });
-
-  // Друк (просто відкриває print)
-  document.getElementById('printInvoicesBtn').onclick = () => {
-    const printContent = document.getElementById('invoiceList').outerHTML;
-    const newWin = window.open('', '', 'width=800,height=600');
-    newWin.document.write('<html><head><title>Друк рахунків</title></head><body>');
-    newWin.document.write('<h1>Рахунки</h1>');
-    newWin.document.write(printContent);
-    newWin.document.write('</body></html>');
-    newWin.document.close();
-    newWin.print();
-  };
-  document.getElementById('printActsBtn').onclick = () => {
-    const printContent = document.getElementById('actList').outerHTML;
-    const newWin = window.open('', '', 'width=800,height=600');
-    newWin.document.write('<html><head><title>Друк актів</title></head><body>');
-    newWin.document.write('<h1>Акти виконаних робіт</h1>');
-    newWin.document.write(printContent);
-    newWin.document.write('</body></html>');
-    newWin.document.close();
-    newWin.print();
-  };
-
-  // Рендер при старті
-  renderClients();
-  renderInvoices();
-  renderActs();
-</script>
-
-</body>
-</html>
+   
